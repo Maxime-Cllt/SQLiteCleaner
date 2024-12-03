@@ -41,6 +41,7 @@ best conditions possible. Using Rust, it is compatible with all platforms and ca
 
 <div align="center">
 <img src="https://img.shields.io/badge/Rust-1.83+-informational?style=flat&logo=rust&logoColor=white&color=53a863" alt="Rust" />
+<img src="https://img.shields.io/badge/Cargo-informational?style=flat&logo=rust&logoColor=white&color=53a863" alt="Cargo" />
 </div>
 
 ## Installation
@@ -53,7 +54,7 @@ To run the program :
 git clone https://github.com/Maxime-Cllt/SqliteCleaner.git
 ```
 
-2. Import the libraries:
+2. Build the program:
 
 ```bash
 cargo build --release
