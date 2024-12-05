@@ -5,7 +5,7 @@ mod tests {
     use crate::logger::Logger;
     use once_cell::sync::Lazy;
     use rusqlite::Connection;
-    use std::fs::{remove_file, File};
+    use std::fs::{remove_file, File, OpenOptions};
     use std::path::Path;
     use std::sync::Mutex;
 
@@ -14,7 +14,14 @@ mod tests {
     static LOGGER: Lazy<Mutex<Logger>> = Lazy::new(|| Mutex::new(Logger::new()));
 
     fn setup() {
-        File::create(DB_PATH).unwrap();
+        if Path::new(DB_PATH).exists() {
+            remove_file(DB_PATH).unwrap();
+        }
+        let _file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(DB_PATH)
+            .unwrap();
     }
 
     fn teardown() {
@@ -92,6 +99,10 @@ mod tests {
     #[test]
     fn test_get_size_of_database() {
         setup();
+
+        assert!(Path::new(DB_PATH).exists());
+        assert!(File::open(DB_PATH).is_ok());
+
         let mut logger = LOGGER.lock().unwrap();
         let conn: Connection = open_connection(DB_PATH, &mut *logger);
         let config: Configuration = Configuration::new(DB_PATH.to_string());
