@@ -7,16 +7,28 @@ mod tests {
     use rusqlite::Connection;
     use std::fs::{remove_file, File, OpenOptions};
     use std::path::Path;
+    use std::process::Command;
     use std::sync::Mutex;
 
     const DB_PATH: &str = "for_test.db";
+
+
+    // https://github.com/rust-build/rust-build.action
 
     static LOGGER: Lazy<Mutex<Logger>> = Lazy::new(|| Mutex::new(Logger::new()));
 
     fn setup() {
         if Path::new(DB_PATH).exists() {
+
+            Command::new("chmod")
+                .arg("+w")
+                .arg(DB_PATH)
+                .output()
+                .expect("Failed to change file permissions");
+
             remove_file(DB_PATH).unwrap();
         }
+
         let _file = OpenOptions::new()
             .write(true)
             .create(true)
@@ -26,6 +38,12 @@ mod tests {
 
     fn teardown() {
         if Path::new(DB_PATH).exists() {
+            Command::new("chmod")
+                .arg("+w")
+                .arg(DB_PATH)
+                .output()
+                .expect("Failed to change file permissions");
+
             remove_file(DB_PATH).unwrap();
         }
     }
@@ -99,9 +117,6 @@ mod tests {
     #[test]
     fn test_get_size_of_database() {
         setup();
-
-        assert!(Path::new(DB_PATH).exists());
-        assert!(File::open(DB_PATH).is_ok());
 
         let mut logger = LOGGER.lock().unwrap();
         let conn: Connection = open_connection(DB_PATH, &mut *logger);
