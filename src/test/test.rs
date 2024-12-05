@@ -5,20 +5,44 @@ mod tests {
     use crate::logger::Logger;
     use once_cell::sync::Lazy;
     use rusqlite::Connection;
-    use std::fs::{remove_file, File};
+    use std::fs::{remove_file, File, OpenOptions};
     use std::path::Path;
+    use std::process::Command;
     use std::sync::Mutex;
+    use serial_test::serial;
 
     const DB_PATH: &str = "for_test.db";
+
+    // https://github.com/rust-build/rust-build.action
 
     static LOGGER: Lazy<Mutex<Logger>> = Lazy::new(|| Mutex::new(Logger::new()));
 
     fn setup() {
-        File::create(DB_PATH).unwrap();
+        if Path::new(DB_PATH).exists() {
+            Command::new("chmod")
+                .arg("+w")
+                .arg(DB_PATH)
+                .output()
+                .expect("Failed to change file permissions");
+
+            remove_file(DB_PATH).unwrap();
+        }
+
+        let _file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(DB_PATH)
+            .unwrap();
     }
 
     fn teardown() {
         if Path::new(DB_PATH).exists() {
+            Command::new("chmod")
+                .arg("+w")
+                .arg(DB_PATH)
+                .output()
+                .expect("Failed to change file permissions");
+
             remove_file(DB_PATH).unwrap();
         }
     }
@@ -37,6 +61,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_open_connection() {
         setup();
         assert!(Path::new(DB_PATH).exists());
@@ -45,6 +70,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_get_all_tables() {
         setup();
         let mut logger = LOGGER.lock().unwrap();
@@ -71,10 +97,14 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_execute_sql() {
         setup();
         let mut logger = LOGGER.lock().unwrap();
-        let conn: Connection = open_connection(DB_PATH, &mut *logger);
+        let conn: Connection = Connection::open(DB_PATH).unwrap();
+
+        assert!(Path::new(DB_PATH).exists());
+
         let sql: &str = "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);";
         crate::database::execute_sql(&conn, sql, &mut *logger).unwrap();
         let tables: Vec<String> = get_all_tables(&conn, &mut *logger);
@@ -90,10 +120,14 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_get_size_of_database() {
         setup();
-        let mut logger = LOGGER.lock().unwrap();
-        let conn: Connection = open_connection(DB_PATH, &mut *logger);
+
+        let conn: Connection = Connection::open(DB_PATH).unwrap();
+
+        assert!(Path::new(DB_PATH).exists());
+
         let config: Configuration = Configuration::new(DB_PATH.to_string());
         let size: u64 = config.get_size_of_database();
         assert_eq!(config.get_db_path(), DB_PATH);

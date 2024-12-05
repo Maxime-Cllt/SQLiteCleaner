@@ -14,8 +14,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-        target: [ x86_64-unknown-linux-gnu, x86_64-apple-darwin, x86_64-pc-windows-msvc ]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        target: [x86_64-unknown-linux-gnu, x86_64-apple-darwin, x86_64-pc-windows-msvc]
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
@@ -37,9 +37,8 @@ jobs:
           toolchain: stable
           override: true
 
-      # Install required target (for cross-compilation, if needed)
+      # Install required target
       - name: Install target
-        if: matrix.os == 'ubuntu-latest'
         run: rustup target add ${{ matrix.target }}
 
       # Build the binary
