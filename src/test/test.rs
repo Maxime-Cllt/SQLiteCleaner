@@ -12,14 +12,12 @@ mod tests {
 
     const DB_PATH: &str = "for_test.db";
 
-
     // https://github.com/rust-build/rust-build.action
 
     static LOGGER: Lazy<Mutex<Logger>> = Lazy::new(|| Mutex::new(Logger::new()));
 
     fn setup() {
         if Path::new(DB_PATH).exists() {
-
             Command::new("chmod")
                 .arg("+w")
                 .arg(DB_PATH)
@@ -99,7 +97,11 @@ mod tests {
     fn test_execute_sql() {
         setup();
         let mut logger = LOGGER.lock().unwrap();
-        let conn: Connection = open_connection(DB_PATH, &mut *logger);
+        let conn: Connection = Connection::open(DB_PATH).unwrap();
+
+        assert!(Path::new(DB_PATH).exists());
+
+
         let sql: &str = "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);";
         crate::database::execute_sql(&conn, sql, &mut *logger).unwrap();
         let tables: Vec<String> = get_all_tables(&conn, &mut *logger);
@@ -118,8 +120,10 @@ mod tests {
     fn test_get_size_of_database() {
         setup();
 
-        let mut logger = LOGGER.lock().unwrap();
-        let conn: Connection = open_connection(DB_PATH, &mut *logger);
+        let conn: Connection = Connection::open(DB_PATH).unwrap();
+
+        assert!(Path::new(DB_PATH).exists());
+
         let config: Configuration = Configuration::new(DB_PATH.to_string());
         let size: u64 = config.get_size_of_database();
         assert_eq!(config.get_db_path(), DB_PATH);
