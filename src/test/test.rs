@@ -9,6 +9,7 @@ mod tests {
     use std::path::Path;
     use std::process::Command;
     use std::sync::Mutex;
+    use serial_test::serial;
 
     const DB_PATH: &str = "for_test.db";
 
@@ -60,6 +61,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_open_connection() {
         setup();
         assert!(Path::new(DB_PATH).exists());
@@ -68,6 +70,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_get_all_tables() {
         setup();
         let mut logger = LOGGER.lock().unwrap();
@@ -94,13 +97,13 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_execute_sql() {
         setup();
         let mut logger = LOGGER.lock().unwrap();
         let conn: Connection = Connection::open(DB_PATH).unwrap();
 
         assert!(Path::new(DB_PATH).exists());
-
 
         let sql: &str = "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);";
         crate::database::execute_sql(&conn, sql, &mut *logger).unwrap();
@@ -117,6 +120,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_get_size_of_database() {
         setup();
 
