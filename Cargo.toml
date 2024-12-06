@@ -8,6 +8,7 @@ serde = { version = "1.0.215", features = ["derive"] }
 rusqlite = "0.32.1"
 once_cell = "1.20.2"
 serial_test = "3.2.0"
+pkg-config = "0.3.31" # Required for rusqlite to compile.
 
 [profile.dev]
 incremental = true # Compile your binary in smaller steps.
