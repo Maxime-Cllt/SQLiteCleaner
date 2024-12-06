@@ -19,6 +19,7 @@ on:
           - patch
           - minor
           - major
+        description: "Release type: (none, patch, minor, major)"
 
 jobs:
   check-if-lib:
