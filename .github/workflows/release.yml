@@ -3,7 +3,7 @@ name: Rust CI/CD Pipeline
 on:
   push:
     branches:
-        - gha_cd
+      - gha_cd
 
 jobs:
   build:
@@ -36,46 +36,45 @@ jobs:
       - name: Build project
         run: cargo build --release
 
-      # Step 5: Run tests
-      - name: Run tests
-        run: cargo test --verbose
-
-  deploy:
+  release:
+    needs: [ build ]
     runs-on: ubuntu-latest
-    needs: build # Ensure the build job passes before deploying
-
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      # Step 2: Set up Rust (same as in the build step)
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
-          toolchain: stable
-          override: true
+          name: build-ubuntu-latest
+          path: ubuntu
 
-      # Step 3: Deploy the built binary
-      - name: Deploy binary
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-macos-latest
+          path: macos
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-windows-latest
+          path: windows
+
+      - name: Renamer
         run: |
-          # Install rsync
-          sudo apt-get update && sudo apt-get install -y rsync
+          mv ubuntu/SqLiteCleaner SqliteCleaner_ubuntu
+            mv macos/SqLiteCleaner SqliteCleaner_macos
+            mv windows/SqLiteCleaner.exe SqliteCleaner_windows.exe
 
-          # Copy the built binary to the remote server
-          rsync -avz -e "ssh -i /tmp/deploy_key" \
-            target/release/my_rust_program \
-            $REMOTE_USER@$REMOTE_HOST:/path/to/deploy/
+      - name: Creating release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.dbms_cleaner }}
+          name: ${{ github.event.inputs.dbms_cleaner }}
+          draft: false
+          prerelease: false
+          files: |
+            SqliteCleaner_ubuntu
+            SqliteCleaner_macos
+            SqliteCleaner_windows.exe
 
-          # Restart the service on the remote server (optional)
-          ssh -i /tmp/deploy_key $REMOTE_USER@$REMOTE_HOST << EOF
-          sudo systemctl restart my_rust_program.service
-          EOF
-
-      # Step 4: Verify deployment (optional)
-      - name: Verify deployment
-        run: echo "Deployment complete"
+          token: ${{ secrets.GITHUB_TOKEN }}

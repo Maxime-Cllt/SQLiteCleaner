@@ -62,6 +62,14 @@ cargo build --release
 
 3. Execute the program:
 
+You may need to give the program the right to execute on linux and MacOS:
+
+```bash
+chmod +x target/release/SqliteCleaner
+```
+
+```bash
+
 ### MacOS & Linux
 
 ```bash
