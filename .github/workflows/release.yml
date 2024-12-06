@@ -170,6 +170,7 @@ jobs:
 
   build-and-release:
     needs: [ get-version, create-release ]
+    name: Build & Release for ${{ matrix.target }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -179,27 +180,40 @@ jobs:
           - { os: windows-latest, target: x86_64-pc-windows-msvc, cross: false }
           - { os: macos-latest, target: x86_64-apple-darwin, cross: false }
           - { os: macos-latest, target: aarch64-apple-darwin, cross: false }
-
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.get-version.outputs.new_tag_version }}
 
+      - name: Install dependencies (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sqlite3 libsqlite3-dev gcc make \
+              gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+              gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+
+      - name: Install dependencies (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew update
+          brew install sqlite3
+
       - name: Install dependencies (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          curl -L -o sqlite.zip https://www.sqlite.org/2024/sqlite-dll-win64-x64-3410200.zip
-          unzip sqlite.zip -d sqlite
-          mkdir -p C:/sqlite
-          mv sqlite/sqlite3.lib C:/sqlite
-          mv sqlite/sqlite3.dll C:/sqlite
-          setx LIB "C:\sqlite;%LIB%"
-          setx PATH "C:\sqlite;%PATH%"
-          rustup target add x86_64-pc-windows-msvc
+          choco install sqlite
+        
 
       - name: Install stable Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Install cross-compilation tools (if needed)
+        if: ${{ matrix.cross }}
+        uses: taiki-e/setup-cross-toolchain-action@v1
         with:
           target: ${{ matrix.target }}
 
