@@ -3,7 +3,7 @@ name: Rust CI/CD Pipeline
 on:
   push:
     branches:
-      - main # Trigger the workflow when code is pushed to the `main` branch
+        - gha_cd
 
 jobs:
   build:
