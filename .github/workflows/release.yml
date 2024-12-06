@@ -1,90 +1,81 @@
-name: "publish"
+name: Rust CI/CD Pipeline
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main # Trigger the workflow when code is pushed to the `main` branch
 
 jobs:
-  create-release:
-    permissions:
-      contents: write
+  build:
     runs-on: ubuntu-latest
-    outputs:
-      release_id: ${{ steps.create-release.outputs.result }}
 
     steps:
-      - uses: actions/checkout@v4
+      # Step 1: Check out the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: get version
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
-
-      - name: create release
-        id: create-release
-        uses: actions/github-script@v6
+      # Step 2: Install Rust using `rustup`
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
         with:
-          script: |
-            const { data } = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: `app-v${process.env.PACKAGE_VERSION}`,
-              name: `Desktop App v${process.env.PACKAGE_VERSION}`,
-              body: 'Take a look at the assets to download and install this app.',
-              draft: true,
-              prerelease: false
-            })
-            return data.id
+          toolchain: stable # Use the stable version of Rust
+          override: true
 
-  build-tauri:
-    needs: create-release
-    permissions:
-      contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: "macos-latest" # for Arm based macs (M1 and above).
-            args: "--target aarch64-apple-darwin"
-          - platform: "macos-latest" # for Intel based macs.
-            args: "--target x86_64-apple-darwin"
-          - platform: "ubuntu-22.04" # for Tauri v1 you could replace this with ubuntu-20.04.
-            args: ""
-          - platform: "windows-latest"
-            args: ""
-
-    runs-on: ${{ matrix.platform }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+      # Step 3: Cache Cargo dependencies
+      - name: Cache Cargo registry and build
+        uses: actions/cache@v3
         with:
-          # Ceux-ci sont uniquement utilisés sur macOS, pour accélérer les builds Windows et Linux.
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
 
-      - uses: tauri-apps/tauri-action@v0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          releaseId: ${{ needs.create-release.outputs.release_id }}
-          args: ${{ matrix.args }}
+      # Step 4: Build the project
+      - name: Build project
+        run: cargo build --release
 
-  publish-release:
-    permissions:
-      contents: write
+      # Step 5: Run tests
+      - name: Run tests
+        run: cargo test --verbose
+
+  deploy:
     runs-on: ubuntu-latest
-    needs: [ create-release, build-tauri ]
+    needs: build # Ensure the build job passes before deploying
 
     steps:
-      - name: publish release
-        id: publish-release
-        uses: actions/github-script@v6
-        env:
-          release_id: ${{ needs.create-release.outputs.release_id }}
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Rust (same as in the build step)
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
         with:
-          script: |
-            github.rest.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: process.env.release_id,
-              draft: false,
-              prerelease: false
-            })
+          toolchain: stable
+          override: true
+
+      # Step 3: Deploy the built binary
+      - name: Deploy binary
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        run: |
+          # Install rsync
+          sudo apt-get update && sudo apt-get install -y rsync
+
+          # Copy the built binary to the remote server
+          rsync -avz -e "ssh -i /tmp/deploy_key" \
+            target/release/my_rust_program \
+            $REMOTE_USER@$REMOTE_HOST:/path/to/deploy/
+
+          # Restart the service on the remote server (optional)
+          ssh -i /tmp/deploy_key $REMOTE_USER@$REMOTE_HOST << EOF
+          sudo systemctl restart my_rust_program.service
+          EOF
+
+      # Step 4: Verify deployment (optional)
+      - name: Verify deployment
+        run: echo "Deployment complete"
