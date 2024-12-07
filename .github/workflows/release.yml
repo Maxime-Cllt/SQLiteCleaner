@@ -18,8 +18,7 @@ on:
           - patch
           - minor
           - major
-        description:
-          "Release type: none, patch, minor, major"
+        description: "Release type: none, patch, minor, major"
       publish:
         type: boolean
       overwrite_tag:
@@ -52,7 +51,7 @@ jobs:
           if grep -qE "$regex" <<< "$text"; then
               echo "match=true" >> "$GITHUB_OUTPUT";
           else
-              echo "match=true" >> "$GITHUB_OUTPUT";
+              echo "match=false" >> "$GITHUB_OUTPUT";
           fi
 
       - name: Fail if don't match regex
@@ -109,13 +108,12 @@ jobs:
         run: |
           tag=${{inputs.version}};
           echo $tag;
-          echo "crate_version=${tag##v} >> GITHUB_OUTPUT";
+          echo "crate_version=${tag##v}" >> $GITHUB_OUTPUT;
           echo ${tag##v};
 
     outputs:
       new_tag_version: ${{ inputs.version || steps.new_version.outputs.tag_version || steps.none_version.outputs.tag_version }}
       new_crate_version: ${{ steps.full_version.outputs.crate_version || steps.new_version.outputs.crate_version || steps.none_version.outputs.crate_version }}
-
 
   create-tag:
     needs: [ get-version ]
@@ -130,7 +128,7 @@ jobs:
         if: ${{ inputs.overwrite_tag }}
         id: check-tag-overwrite
         with:
-          tag: ${{  needs.get-version.outputs.new_tag_version }}
+          tag: ${{ needs.get-version.outputs.new_tag_version }}
 
       - name: Delete tag
         if: ${{ steps.check-tag-overwrite.outputs.exists == 'true' }}
@@ -139,7 +137,7 @@ jobs:
           git config user.email github-actions@github.com
           git fetch --tags
           git tag -d ${{ needs.get-version.outputs.new_tag_version }}
-          git push -d origin ${{  needs.get-version.outputs.new_tag_version }}
+          git push -d origin ${{ needs.get-version.outputs.new_tag_version }}
 
       - uses: mukunku/tag-exists-action@v1.6.0
         id: check-tag
@@ -151,22 +149,34 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git tag ${{ needs.get-version.outputs.new_tag_version}}
-          git push origin ${{  needs.get-version.outputs.new_tag_version}}
+          git tag ${{ needs.get-version.outputs.new_tag_version }}
+          git push origin ${{ needs.get-version.outputs.new_tag_version }}
 
   create-release:
     needs: [ get-version, create-tag ]
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.get-upload-url.outputs.upload_url }}
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
-      - uses: taiki-e/create-gh-release-action@v1
+      - name: Create GitHub Release
+        id: create_release
+        uses: taiki-e/create-gh-release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           changelog: CHANGELOG.md
           allow-missing-changelog: true
           ref: refs/tags/${{ needs.get-version.outputs.new_tag_version }}
+
+      - name: Extract Release Upload URL
+        id: get-upload-url
+        run: |
+          echo "upload_url=$(jq -r '.upload_url' <release.json)" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
 
   build-and-release:
     needs: [ get-version, create-release ]
@@ -204,12 +214,6 @@ jobs:
         with:
           target: ${{ matrix.target }}
 
-      - name: Install cross-compilation tools (if needed)
-        if: ${{ matrix.cross }}
-        uses: taiki-e/setup-cross-toolchain-action@v1
-        with:
-          target: ${{ matrix.target }}
-
       - name: Build the binary
         run: |
           cargo build --release --target ${{ matrix.target }}
@@ -231,6 +235,3 @@ jobs:
           asset_path: target/${{ matrix.target }}/release/SqliteCleaner.exe
           asset_name: SqliteCleaner-${{ matrix.target }}.exe
           asset_content_type: application/octet-stream
-
-
-
