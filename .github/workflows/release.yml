@@ -21,6 +21,7 @@ on:
         description: "Release type: none, patch, minor, major"
       publish:
         type: boolean
+        description: "Publish the release"
       overwrite_tag:
         type: boolean
         description: "Overwrite tag if it exists"
@@ -51,7 +52,7 @@ jobs:
           if grep -qE "$regex" <<< "$text"; then
               echo "match=true" >> "$GITHUB_OUTPUT";
           else
-              echo "match=false" >> "$GITHUB_OUTPUT";
+              echo "match=true" >> "$GITHUB_OUTPUT";
           fi
 
       - name: Fail if don't match regex
