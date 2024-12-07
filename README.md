@@ -87,13 +87,13 @@ cd target/release/SqliteCleaner.exe "database.db"
 - Time complexity: O(n) where n is the number of tables in the database
 - Don't clean triggers, stored procedures, functions, and views
 - May not reduce much storage but don't cost much time to run and can be run frequently
-- Require some privileges to connect to the database and to perform the cleaning
 
 ## See Also
 
 <ul>
 <li><a href="https://rust-lang.org" target="_blank">Rust</a></li>
 <li><a href="https://sqlite.org" target="_blank">Sqlite</a></li>
+<li><a href="https://github.com/Maxime-Cllt/DBMSCleaner" target="_blank">DBMSCleaner</a></li>
 </ul>
 
 
