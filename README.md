@@ -11,7 +11,7 @@
 
 ## Description
 
-DBMS Cleaner is a program made to be run to clean the database. It will
+SQlite Cleaner is a program made to be run to clean the database. It will
 reduce the storage of the database and optimise all tables except system tables. It is a simple and efficient way to
 keep your
 database clean and optimised without having to do it manually. It is a great way to keep your database running in the

@@ -222,7 +222,7 @@ jobs:
 
 
   upload-artifacts:
-    needs: build-and-release
+    needs: [ build-and-release, create-release ]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
