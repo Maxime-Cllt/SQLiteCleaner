@@ -157,6 +157,9 @@ jobs:
           allow-missing-changelog: true
           ref: refs/tags/${{ needs.get-version.outputs.new_tag_version }}
 
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
   build-and-release:
     needs: [ get-version, create-release ]
     name: Build & Release for ${{ matrix.target }} on ${{ matrix.os }}
