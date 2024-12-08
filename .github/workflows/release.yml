@@ -22,6 +22,7 @@ on:
           "Release type: none, patch, minor, major"
       publish:
         type: boolean
+        description: "Publish release"
       overwrite_tag:
         type: boolean
         description: "Overwrite tag if it exists"
@@ -47,19 +48,7 @@ jobs:
         id: regex-match
         run: |
           text="${INPUT_VERSION}";
-          regex="^v([0-9]+)\.([0-9]+)\.([0-9]+)-?([[:alnum:]]*)\+?([0-9]*)$";
-          # Perform the regex match
-          if grep -qE "$regex" <<< "$text"; then
-              echo "match=true" >> "$GITHUB_OUTPUT";
-          else
-              echo "match=true" >> "$GITHUB_OUTPUT";
-          fi
-
-      - name: Fail if don't match regex
-        if: ${{ inputs.version && steps.regex-match.outputs.match == 'false' }}
-        run: |
-          echo "${{inputs.version}} doesn't match regex. Use a version similar to v3.1.4-alpha+159"
-          exit 1;
+          echo "match=true" >> "$GITHUB_OUTPUT";
 
   get-version:
     needs: validate-input
@@ -228,17 +217,17 @@ jobs:
           name: ${{ github.event.repository.name }}-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/SqliteCleaner
 
-      - name: Upload release binary (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ github.event.repository.name }}-${{ matrix.target }}
-          path: 'target/${{ matrix.target }}/release/SqliteCleaner.exe'
-
 
   upload-artifacts:
     needs: build-and-release
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: x86_64-unknown-linux-gnu }
+          - { target: x86_64-apple-darwin }
+          - { target: aarch64-apple-darwin }
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v4
@@ -246,13 +235,12 @@ jobs:
       - name: Download release binary
         uses: actions/download-artifact@v3
         with:
-          name: ${{ github.event.repository.name }}-${{ matrix.target }}
+          name: SqliteCleaner-${{ matrix.target }}
 
-      - name: Upload release binary
+      - name: Upload release binary to GitHub Release
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: target/${{ matrix.target }}/release/SqliteCleaner
           asset_name: SqliteCleaner-${{ matrix.target }}
           asset_content_type: application/octet-stream
-
