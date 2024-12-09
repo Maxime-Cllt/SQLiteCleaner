@@ -68,8 +68,6 @@ You may need to give the program the right to execute on linux and MacOS:
 chmod +x target/release/SqliteCleaner
 ```
 
-```bash
-
 ### MacOS & Linux
 
 ```bash
