@@ -1,95 +1,246 @@
-name: Build and Release Rust Project
+name: "Build & Release"
+
+permissions:
+  # To upload files to GitHub Releases
+  contents: write
 
 on:
   workflow_dispatch:
     inputs:
-      release_name:
-        description: 'Name of the release (e.g., v1.0.0)'
-        required: true
-        default: 'v1.0.0'
+      version:
+        type: string
+        description: "Version: (e.g. -> v3.1.4-alpha+159)"
+      release_type:
+        type: choice
+        default: none
+        options:
+          - none
+          - patch
+          - minor
+          - major
+        description:
+          "Release type: none, patch, minor, major"
+      publish:
+        type: boolean
+        description: "Publish release"
+      overwrite_tag:
+        type: boolean
+        description: "Overwrite tag if it exists"
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        description: "Version: (e.g. -> v3.1.4-alpha+159)"
+      release_type:
+        type: string
+      publish:
+        type: boolean
+      overwrite_tag:
+        type: boolean
 
 jobs:
-  build:
-    name: Build and Upload Artifacts
+  validate-input:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate input
+        id: regex-match
+        run: |
+          text="${INPUT_VERSION}";
+          echo "match=true" >> "$GITHUB_OUTPUT";
+
+  get-version:
+    needs: validate-input
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v4
+
+      - name: Install jql
+        if: ${{ !inputs.version }}
+        uses: taiki-e/install-action@v2
+        with:
+          tool: jql
+
+      - name: Install cargo-bump
+        if: ${{ !inputs.version }}
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-bump
+
+      - name: Versions using None
+        id: none_version
+        if: ${{ !inputs.version && inputs.release_type == 'none' }}
+        run: |
+          version=$(cargo metadata --format-version=1 --no-deps | jql '"packages"|>"version"<|[0]' --raw-string);
+          echo $version;
+          echo "crate_version=$version" >> "$GITHUB_OUTPUT";
+          normal_version=v$version
+          echo $normal_version;
+          echo "tag_version=$normal_version" >> "$GITHUB_OUTPUT";
+
+      - name: Versions using release_type
+        id: new_version
+        if: ${{ !inputs.version && inputs.release_type != 'none' }}
+        run: |
+          cargo bump ${{ inputs.release_type }};
+          version=$(cargo metadata --format-version=1 --no-deps | jql '"packages"|>"version"<|[0]' --raw-string);
+          echo $version;
+          echo "crate_version=$version" >> "$GITHUB_OUTPUT";
+          normal_version=v$version
+          echo $normal_version;
+          echo "tag_version=$normal_version" >> "$GITHUB_OUTPUT";
+
+      - name: Versions using tag
+        id: full_version
+        if: inputs.version
+        run: |
+          tag=${{inputs.version}};
+          echo $tag;
+          echo "crate_version=${tag##v} >> GITHUB_OUTPUT";
+          echo ${tag##v};
+
+    outputs:
+      new_tag_version: ${{ inputs.version || steps.new_version.outputs.tag_version || steps.none_version.outputs.tag_version }}
+      new_crate_version: ${{ steps.full_version.outputs.crate_version || steps.new_version.outputs.crate_version || steps.none_version.outputs.crate_version }}
+
+
+  create-tag:
+    needs: [ get-version ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v4
+
+      - run: git pull
+
+      - uses: mukunku/tag-exists-action@v1.6.0
+        if: ${{ inputs.overwrite_tag }}
+        id: check-tag-overwrite
+        with:
+          tag: ${{  needs.get-version.outputs.new_tag_version }}
+
+      - name: Delete tag
+        if: ${{ steps.check-tag-overwrite.outputs.exists == 'true' }}
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git fetch --tags
+          git tag -d ${{ needs.get-version.outputs.new_tag_version }}
+          git push -d origin ${{  needs.get-version.outputs.new_tag_version }}
+
+      - uses: mukunku/tag-exists-action@v1.6.0
+        id: check-tag
+        with:
+          tag: ${{ needs.get-version.outputs.new_tag_version}}
+
+      - name: Create tag
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag ${{ needs.get-version.outputs.new_tag_version}}
+          git push origin ${{  needs.get-version.outputs.new_tag_version}}
+
+  create-release:
+    needs: [ get-version, create-tag ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v4
+
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          changelog: CHANGELOG.md
+          allow-missing-changelog: true
+          ref: refs/tags/${{ needs.get-version.outputs.new_tag_version }}
+
+  build-and-release:
+    needs: [ get-version, create-release ]
+    name: Build & Release for ${{ matrix.target }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        target: [x86_64-unknown-linux-gnu, x86_64-apple-darwin, x86_64-pc-windows-msvc]
         include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-          - os: macos-latest
-            target: x86_64-apple-darwin
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, cross: false }
+          #          - { os: windows-latest, target: x86_64-pc-windows-msvc, cross: false }
+          - { os: macos-latest, target: x86_64-apple-darwin, cross: false }
+          - { os: macos-latest, target: aarch64-apple-darwin, cross: false }
     steps:
-      # Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Install Rust
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
+      - name: Fetch Repository
+        uses: actions/checkout@v4
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
+          ref: ${{ needs.get-version.outputs.new_tag_version }}
 
-      # Install required target
-      - name: Install target
-        run: rustup target add ${{ matrix.target }}
+      - name: Install dependencies (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sqlite3 libsqlite3-dev gcc make \
+              gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+              gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
 
-      # Build the binary
-      - name: Build
+      - name: Install dependencies (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew update
+          brew install sqlite3
+
+        #      - name: Install dependencies (Windows)
+        #        if: ${{ matrix.os == 'windows-latest' }}
+        #        run: |
+        #          choco install sqlite
+
+
+      - name: Install stable Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Install cross-compilation tools (if needed)
+        if: ${{ matrix.cross }}
+        uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Build the binary
         run: |
           cargo build --release --target ${{ matrix.target }}
 
-      # Prepare artifact for release
-      - name: Prepare artifact
-        run: |
-          mkdir -p artifacts
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            cp target/${{ matrix.target }}/release/*.exe artifacts/${{ matrix.target }}.exe
-          else
-            cp target/${{ matrix.target }}/release/* artifacts/${{ matrix.target }}
-          fi
-
-      # Upload artifacts
-      - name: Upload artifact
+      - name: Upload release binary (Linux & macOS)
+        if: ${{ matrix.os != 'windows-latest' }}
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.target }}
-          path: artifacts/
+          name: ${{ github.event.repository.name }}-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/SqliteCleaner
 
-  release:
-    name: Create Release
-    needs: build
+
+  upload-artifacts:
+    needs: build-and-release
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: x86_64-unknown-linux-gnu }
+          - { target: x86_64-apple-darwin }
+          - { target: aarch64-apple-darwin }
     steps:
-      # Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Fetch Repository
+        uses: actions/checkout@v4
 
-      # Create GitHub Release
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Download release binary
+        uses: actions/download-artifact@v3
         with:
-          tag_name: ${{ github.event.inputs.release_name }}
-          release_name: ${{ github.event.inputs.release_name }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: SqliteCleaner-${{ matrix.target }}
 
-      # Upload release artifacts to GitHub release
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
+      - name: Upload release binary to GitHub Release
+        uses: actions/upload-release-asset@v1
         with:
-          files: |
-            **/artifacts/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: target/${{ matrix.target }}/release/SqliteCleaner
+          asset_name: SqliteCleaner-${{ matrix.target }}
+          asset_content_type: application/octet-stream

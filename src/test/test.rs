@@ -13,8 +13,6 @@ mod tests {
 
     const DB_PATH: &str = "for_test.db";
 
-    // https://github.com/rust-build/rust-build.action
-
     static LOGGER: Lazy<Mutex<Logger>> = Lazy::new(|| Mutex::new(Logger::new()));
 
     fn setup() {
@@ -74,14 +72,14 @@ mod tests {
     fn test_get_all_tables() {
         setup();
         let mut logger = LOGGER.lock().unwrap();
-        let conn: Connection = open_connection(DB_PATH, &mut *logger);
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger);
+        let conn: Connection = open_connection(DB_PATH, &mut *logger).unwrap();
+        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
         assert_eq!(tables.len(), 0);
 
         create_table(&conn, "users");
         create_table(&conn, "posts");
 
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger);
+        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
         assert_eq!(tables.len(), 2);
 
         assert!(tables.contains(&"users".to_string()));
@@ -90,7 +88,7 @@ mod tests {
         drop_table(&conn, "users");
         drop_table(&conn, "posts");
 
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger);
+        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
         assert_eq!(tables.len(), 0);
 
         teardown();
@@ -107,13 +105,13 @@ mod tests {
 
         let sql: &str = "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);";
         crate::database::execute_sql(&conn, sql, &mut *logger).unwrap();
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger);
+        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
         assert_eq!(tables.len(), 1);
         assert!(tables.contains(&"users".to_string()));
 
         let sql: &str = "DROP TABLE IF EXISTS users;";
         crate::database::execute_sql(&conn, sql, &mut *logger).unwrap();
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger);
+        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
         assert_eq!(tables.len(), 0);
 
         teardown();
@@ -129,14 +127,14 @@ mod tests {
         assert!(Path::new(DB_PATH).exists());
 
         let config: Configuration = Configuration::new(DB_PATH.to_string());
-        let size: u64 = config.get_size_of_database();
+        let size: u64 = config.get_size_of_database().unwrap();
         assert_eq!(config.get_db_path(), DB_PATH);
         assert_eq!(size, 0);
 
         create_table(&conn, "users");
         create_table(&conn, "posts");
 
-        let size: u64 = config.get_size_of_database();
+        let size: u64 = config.get_size_of_database().unwrap();
         assert_ne!(size, 0);
 
         teardown();

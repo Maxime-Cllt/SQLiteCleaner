@@ -1,27 +1,31 @@
 [package]
 name = "SqliteCleaner"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
+repository = "https://github.com/Maxime-Cllt/SqliteCleaner.git"
 
 [dependencies]
-serde = { version = "1.0.215", features = ["derive"] }
-rusqlite = "0.32.1"
-once_cell = "1.20.2"
-serial_test = "3.2.0"
+rusqlite = "0.32.1"# Sqlite library for Rust
+chrono = "0.4.38" # Date and time library for Rust
+
+[dev-dependencies]
+serial_test = "3.2.0" # Run tests in parallel
+once_cell = "1.20.2" # A library for lazy evaluation of static variables
 
 [profile.dev]
 incremental = true # Compile your binary in smaller steps.
-codegen-units = 20 # Compile your binary in smaller steps. The higher the number, the faster the compilation. The lower the number, the smaller the binary size.
-opt-level = 0 # Prioritizes fast compilation.
-panic = "unwind" # Allows for better debugging.
-debug = true # Enables debug symbols.
-lto = false # Disables link-time optimization, which speeds up compilation.
-
+codegen-units = 20
+opt-level = 0
+panic = "unwind"
+debug = true
+lto = false
+overflow-checks = true
 
 [profile.release]
+incremental = false
 codegen-units = 1
 opt-level = 2
-panic  = "abort"
+panic = "abort"
 strip = true
 debug = false
 lto = true

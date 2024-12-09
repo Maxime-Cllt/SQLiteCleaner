@@ -23,7 +23,7 @@ impl Logger {
     /// Log a message to the log file
     pub fn log(&mut self, message: &str) {
         let mut log_writer = std::io::BufWriter::new(&self.log_file);
-        writeln!(log_writer, "{}", message).unwrap();
+        writeln!(log_writer, "[{}] {}", chrono::Local::now(), message).unwrap();
     }
 
     /// Log a message to the log file and print it to the console

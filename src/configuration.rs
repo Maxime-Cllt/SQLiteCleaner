@@ -1,11 +1,9 @@
-use serde::Deserialize;
 use std::fs::Metadata;
 
-/// Configuration object for the application, loaded from a configuration file
+/// Configuration object to hold the configuration of the program (e.g. database path)
 
-#[derive(Debug, Deserialize)]
 pub struct Configuration {
-    db_path: String,
+    db_path: String, // Path to the sqlite database file
 }
 
 impl Configuration {
@@ -14,13 +12,13 @@ impl Configuration {
         Configuration { db_path }
     }
 
-    pub fn get_from_args() -> Configuration {
+    pub fn get_from_args() -> Result<Configuration, std::io::Error> {
         let args: Vec<String> = std::env::args().collect();
         if args.len() != 4 {
             println!("{:?}", args);
             std::process::exit(1);
         }
-        Configuration::new(args[1].clone())
+        Ok(Configuration::new(args[1].clone()))
     }
 
     /// Get the path to the database file to use
@@ -29,8 +27,8 @@ impl Configuration {
     }
 
     /// Get the size of using the file system
-    pub fn get_size_of_database(&self) -> u64 {
-        let fs: Metadata = std::fs::metadata(&self.db_path).unwrap();
-        fs.len()
+    pub fn get_size_of_database(&self) -> Result<u64, std::io::Error> {
+        let fs: Metadata = std::fs::metadata(&self.db_path)?;
+        Ok(fs.len())
     }
 }
