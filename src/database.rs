@@ -69,7 +69,7 @@ pub fn print_report(
     start_bytes_size: u64,
     config: &Configuration,
     logger: &mut Logger,
-) -> () {
+) {
     let end_size: u64 = config.get_size_of_database().unwrap_or_default(); // Get the size of the database
     let optimized_bytes: u64 = start_bytes_size - end_size;
     let percentage_of_reduction: f32 = if start_bytes_size == 0 {
@@ -92,24 +92,19 @@ pub fn print_report(
 
 /// Process the cleaning of the database
 pub fn process_db_cleaning(conn: &Connection, logger: &mut Logger) -> Result<(), rusqlite::Error> {
-    let result_all_tables: Vec<String>;
-
-    match get_all_tables(&conn, logger) {
-        Ok(tables) => result_all_tables = tables,
+    let result_all_tables: Vec<String> = match get_all_tables(conn, logger) {
+        Ok(tables) => tables,
         Err(e) => {
             logger.log_and_print(&format!("Error getting all tables: {:?}", e));
             return Err(e);
         }
-    }
+    };
 
     const REINDEX_SQL: &str = "REINDEX ";
     const ANALYZE_SQL: &str = "ANALYZE ";
     const VACUUM_SQL: &str = "VACUUM ";
 
-    let size: usize = result_all_tables.len();
-    for i in 0..size {
-        let table_name: &str = &result_all_tables[i];
-
+    for table_name in &result_all_tables {
         let sql_commands: [String; 3] = [
             format!("{}'{}';", &VACUUM_SQL, &table_name),
             format!("{}'{}';", &REINDEX_SQL, &table_name),
@@ -117,7 +112,7 @@ pub fn process_db_cleaning(conn: &Connection, logger: &mut Logger) -> Result<(),
         ];
 
         for sql in &sql_commands {
-            if let Err(e) = execute_sql(&conn, sql, logger) {
+            if let Err(e) = execute_sql(conn, sql, logger) {
                 logger.log_and_print(&format!("Error executing SQL '{}': {:?}", sql, e));
             }
         }

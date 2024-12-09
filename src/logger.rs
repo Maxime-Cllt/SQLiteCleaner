@@ -12,7 +12,6 @@ impl Logger {
     pub fn new() -> Logger {
         let log_file: File = std::fs::OpenOptions::new()
             .create(true)
-            .write(true)
             .append(true)
             .open("SqltieClient.log")
             .unwrap();
