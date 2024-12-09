@@ -7,8 +7,8 @@ mod test;
 use crate::configuration::Configuration;
 use crate::database::{open_connection, print_report, process_db_cleaning};
 use crate::logger::Logger;
-use rusqlite::Connection;
 use std::time::Instant;
+use sqlite::Connection;
 
 fn main() {
     let start_time: Instant = Instant::now();
