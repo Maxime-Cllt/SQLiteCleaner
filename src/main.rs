@@ -43,5 +43,4 @@ fn main() {
     }
 
     print_report(start_time, start_bytes_size, &config, &mut logger);
-    return;
 }
