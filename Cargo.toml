@@ -5,8 +5,8 @@ edition = "2021"
 repository = "https://github.com/Maxime-Cllt/SqliteCleaner.git"
 
 [dependencies]
-rusqlite = "0.32.1"# Sqlite library for Rust
-chrono = "0.4.38" # Date and time library for Rust
+chrono = "0.4.39" # Date and time library for Rust
+sqlite = "0.36.1"
 
 [dev-dependencies]
 serial_test = "3.2.0" # Run tests in parallel

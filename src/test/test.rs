@@ -4,12 +4,12 @@ mod tests {
     use crate::database::{get_all_tables, open_connection};
     use crate::logger::Logger;
     use once_cell::sync::Lazy;
-    use rusqlite::Connection;
     use std::fs::{remove_file, File, OpenOptions};
     use std::path::Path;
     use std::process::Command;
     use std::sync::Mutex;
     use serial_test::serial;
+    use sqlite::Connection;
 
     const DB_PATH: &str = "for_test.db";
 
@@ -46,7 +46,7 @@ mod tests {
     }
 
     fn create_table(conn: &Connection, table_name: &str) {
-        conn.execute_batch(&format!(
+        conn.execute(&format!(
             "CREATE TABLE {} (id INTEGER PRIMARY KEY, name TEXT);",
             table_name
         ))
@@ -54,7 +54,7 @@ mod tests {
     }
 
     fn drop_table(conn: &Connection, table_name: &str) {
-        conn.execute_batch(&format!("DROP TABLE IF EXISTS {};", table_name))
+        conn.execute(&format!("DROP TABLE IF EXISTS {};", table_name))
             .unwrap();
     }
 

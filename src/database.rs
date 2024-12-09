@@ -1,10 +1,10 @@
 use crate::configuration::Configuration;
 use crate::logger::Logger;
-use rusqlite::Connection;
+use sqlite::Connection;
 use std::time::{Duration, Instant};
 
 /// Open a connection to the database
-pub fn open_connection(db_path: &str, logger: &mut Logger) -> Result<Connection, rusqlite::Error> {
+pub fn open_connection(db_path: &str, logger: &mut Logger) -> Result<Connection, sqlite::Error> {
     match Connection::open(db_path) {
         Ok(c) => Ok(c),
         Err(e) => {
@@ -15,12 +15,8 @@ pub fn open_connection(db_path: &str, logger: &mut Logger) -> Result<Connection,
 }
 
 /// Execute an SQL statement
-pub fn execute_sql(
-    conn: &Connection,
-    sql: &str,
-    logger: &mut Logger,
-) -> Result<(), rusqlite::Error> {
-    match conn.execute(sql, []) {
+pub fn execute_sql(conn: &Connection, sql: &str, logger: &mut Logger) -> Result<(), sqlite::Error> {
+    match conn.execute(sql) {
         Ok(_) => Ok(()),
         Err(e) => {
             logger.log_and_print(&format!("Error executing SQL '{}': {:?}", sql, e));
@@ -33,34 +29,27 @@ pub fn execute_sql(
 pub fn get_all_tables(
     conn: &Connection,
     logger: &mut Logger,
-) -> Result<Vec<String>, rusqlite::Error> {
+) -> Result<Vec<String>, sqlite::Error> {
     let sql: &str =
         "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%';";
 
     // Query the tables
     let mut result_all_tables: Vec<String> = Vec::new();
-    match conn.prepare(sql) {
-        Ok(mut stmt) => {
-            let table_iter = stmt.query_map([], |row| row.get(0));
-            match table_iter {
-                Ok(rows) => {
-                    for row in rows {
-                        match row {
-                            Ok(table_name) => result_all_tables.push(table_name),
-                            Err(e) => {
-                                logger.log_and_print(&format!("Error getting table name: {:?}", e))
-                            }
-                        }
-                    }
-                }
-                Err(e) => logger.log_and_print(&format!("Error getting table names: {:?}", e)),
+
+    match conn.iterate(sql, |pairs| {
+        for &(_, value) in pairs.iter() {
+            if let Some(value) = value {
+                result_all_tables.push(value.to_string());
             }
         }
+        true
+    }) {
+        Ok(_) => Ok(result_all_tables),
         Err(e) => {
-            logger.log_and_print(&format!("Error preparing SQL '{}': {:?}", sql, e));
+            logger.log_and_print(&format!("Error getting all tables: {:?}", e));
+            Err(e)
         }
     }
-    Ok(result_all_tables)
 }
 
 /// Print the end message with the size of the database
@@ -91,7 +80,7 @@ pub fn print_report(
 }
 
 /// Process the cleaning of the database
-pub fn process_db_cleaning(conn: &Connection, logger: &mut Logger) -> Result<(), rusqlite::Error> {
+pub fn process_db_cleaning(conn: &Connection, logger: &mut Logger) -> Result<(), sqlite::Error> {
     let result_all_tables: Vec<String> = match get_all_tables(conn, logger) {
         Ok(tables) => tables,
         Err(e) => {
