@@ -1,7 +1,6 @@
-name: "Build & Release"
+name: "Build & Release Workflow"
 
 permissions:
-  # To upload files to GitHub Releases
   contents: write
 
 on:
@@ -9,7 +8,7 @@ on:
     inputs:
       version:
         type: string
-        description: "Version: (e.g. -> v3.1.4-alpha+159)"
+        description: "Version: (e.g. -> v1.0.0)"
       release_type:
         type: choice
         default: none
@@ -30,7 +29,7 @@ on:
     inputs:
       version:
         type: string
-        description: "Version: (e.g. -> v3.1.4-alpha+159)"
+        description: "Version: (e.g. -> v1.0.0)"
       release_type:
         type: string
       publish:
@@ -165,10 +164,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-#          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, cross: false }
-#          - { os: windows-latest, target: x86_64-pc-windows-msvc, cross: false }
-#          - { os: macos-latest, target: x86_64-apple-darwin, cross: false }
-#          - { os: macos-latest, target: aarch64-apple-darwin, cross: false }
           - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, cross: false }
           - { os: ubuntu-latest, target: x86_64-unknown-linux-musl, cross: true }
           - { os: ubuntu-latest, target: aarch64-unknown-linux-gnu, cross: true }
@@ -185,25 +180,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.get-version.outputs.new_tag_version }}
-
-      - name: Install dependencies (Ubuntu)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sqlite3 libsqlite3-dev gcc make \
-              gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-              gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
-
-      - name: Install dependencies (macOS)
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          brew update
-          brew install sqlite3
-
-        #      - name: Install dependencies (Windows)
-        #        if: ${{ matrix.os == 'windows-latest' }}
-        #        run: |
-        #          choco install sqlite
 
 
       - name: Install stable Rust toolchain
