@@ -236,8 +236,8 @@ jobs:
       - name: Download release binary
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.event.inputs.dbms_cleaner }}
-          name: ${{ github.event.inputs.dbms_cleaner }}
+          tag_name: ${{ needs.get-version.outputs.new_tag_version }}
+          name: ${{ needs.get-version.outputs.new_tag_version }}
           draft: false
           prerelease: false
           files: |
