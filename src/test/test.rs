@@ -72,7 +72,7 @@ mod tests {
     fn test_get_all_tables() {
         setup();
         let mut logger = LOGGER.lock().unwrap();
-        let conn: Connection = open_connection(DB_PATH, &mut *logger).unwrap();
+        let conn: Connection = open_connection(DB_PATH, &mut *logger);
         let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
         assert_eq!(tables.len(), 0);
 

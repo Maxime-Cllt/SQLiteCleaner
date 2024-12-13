@@ -212,29 +212,35 @@ jobs:
           path: target/${{ matrix.target }}/release/SqliteCleaner.exe
 
 
-#  upload-artifacts:
-#    needs: build-and-release
-#    runs-on: ubuntu-latest
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        include:
-#          - { target: x86_64-unknown-linux-gnu }
-#          - { target: x86_64-apple-darwin }
-#          - { target: aarch64-apple-darwin }
-#    steps:
-#      - name: Fetch Repository
-#        uses: actions/checkout@v4
-#
-#      - name: Download release binary
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: SqliteCleaner-${{ matrix.target }}
-#
-#      - name: Upload release binary to GitHub Release
-#        uses: actions/upload-release-asset@v1
-#        with:
-#          upload_url: ${{ needs.create-release.outputs.upload_url }}
-#          asset_path: target/${{ matrix.target }}/release/SqliteCleaner
-#          asset_name: SqliteCleaner-${{ matrix.target }}
-#          asset_content_type: application/octet-stream
+  upload-artifacts:
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: x86_64-unknown-linux-gnu }
+          - { target: x86_64-unknown-linux-musl }
+          - { target: aarch64-unknown-linux-gnu }
+          - { target: aarch64-unknown-linux-musl }
+          - { target: riscv64gc-unknown-linux-gnu }
+
+          - { target: x86_64-pc-windows-msvc }
+          - { target: aarch64-pc-windows-msvc }
+
+          - { target: x86_64-apple-darwin }
+          - { target: aarch64-apple-darwin }
+
+    steps:
+
+      - name: Download release binary
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.dbms_cleaner }}
+          name: ${{ github.event.inputs.dbms_cleaner }}
+          draft: false
+          prerelease: false
+          files: |
+            target/${{ matrix.target }}/release/SqliteCleaner
+            target/${{ matrix.target }}/release/SqliteCleaner.exe
+          token: ${{ secrets.GITHUB_TOKEN }}
