@@ -16,6 +16,7 @@ reduce the storage of the database and optimise all tables except system tables.
 keep your
 database clean and optimised without having to do it manually. It is a great way to keep your database running in the
 best conditions possible. Using Rust, it is compatible with all platforms and can be run on any server or application.
+Check in the releases to download the program.
 
 ## Features
 

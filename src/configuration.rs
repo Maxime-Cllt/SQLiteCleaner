@@ -7,17 +7,17 @@ pub struct Configuration {
 
 impl Configuration {
     /// Create a new configuration object
-    pub fn new(db_path: String) -> Configuration {
-        Configuration { db_path }
+    pub const fn new(db_path: String) -> Self {
+        Self { db_path }
     }
 
-    pub fn get_from_args() -> Result<Configuration, std::io::Error> {
+    pub fn get_from_args() -> Self {
         let args: Vec<String> = std::env::args().collect();
         if args.len() != 4 {
-            println!("{:?}", args);
+            println!("{args:?}");
             std::process::exit(1);
         }
-        Ok(Configuration::new(args[1].clone()))
+        Self::new(args[1].clone())
     }
 
     /// Get the path to the database file to use

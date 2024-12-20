@@ -1,15 +1,15 @@
 #[cfg(test)]
-mod tests {
+mod unit_tests {
     use crate::configuration::Configuration;
     use crate::database::{get_all_tables, open_connection};
     use crate::logger::Logger;
     use once_cell::sync::Lazy;
+    use serial_test::serial;
+    use sqlite::Connection;
     use std::fs::{remove_file, File, OpenOptions};
     use std::path::Path;
     use std::process::Command;
     use std::sync::Mutex;
-    use serial_test::serial;
-    use sqlite::Connection;
 
     const DB_PATH: &str = "for_test.db";
 
@@ -27,9 +27,9 @@ mod tests {
         }
 
         let _file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(DB_PATH)
+            .create(true) // Create the file if it doesn't exist
+            .append(true) // Append data to the file
+            .open(DB_PATH) // Open the file
             .unwrap();
     }
 
@@ -46,15 +46,14 @@ mod tests {
     }
 
     fn create_table(conn: &Connection, table_name: &str) {
-        conn.execute(&format!(
-            "CREATE TABLE {} (id INTEGER PRIMARY KEY, name TEXT);",
-            table_name
+        conn.execute(format!(
+            "CREATE TABLE {table_name} (id INTEGER PRIMARY KEY, name TEXT);"
         ))
         .unwrap();
     }
 
     fn drop_table(conn: &Connection, table_name: &str) {
-        conn.execute(&format!("DROP TABLE IF EXISTS {};", table_name))
+        conn.execute(format!("DROP TABLE IF EXISTS {table_name};"))
             .unwrap();
     }
 
@@ -71,15 +70,15 @@ mod tests {
     #[serial]
     fn test_get_all_tables() {
         setup();
-        let mut logger = LOGGER.lock().unwrap();
-        let conn: Connection = open_connection(DB_PATH, &mut *logger).unwrap();
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
+        let logger = LOGGER.lock().unwrap();
+        let conn: Connection = open_connection(DB_PATH, &logger);
+        let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
         assert_eq!(tables.len(), 0);
 
         create_table(&conn, "users");
         create_table(&conn, "posts");
 
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
+        let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
         assert_eq!(tables.len(), 2);
 
         assert!(tables.contains(&"users".to_string()));
@@ -88,7 +87,7 @@ mod tests {
         drop_table(&conn, "users");
         drop_table(&conn, "posts");
 
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
+        let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
         assert_eq!(tables.len(), 0);
 
         teardown();
@@ -98,20 +97,20 @@ mod tests {
     #[serial]
     fn test_execute_sql() {
         setup();
-        let mut logger = LOGGER.lock().unwrap();
+        let logger = LOGGER.lock().unwrap();
         let conn: Connection = Connection::open(DB_PATH).unwrap();
 
         assert!(Path::new(DB_PATH).exists());
 
         let sql: &str = "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);";
-        crate::database::execute_sql(&conn, sql, &mut *logger).unwrap();
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
+        crate::database::execute_sql(&conn, sql, &logger).unwrap();
+        let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
         assert_eq!(tables.len(), 1);
         assert!(tables.contains(&"users".to_string()));
 
         let sql: &str = "DROP TABLE IF EXISTS users;";
-        crate::database::execute_sql(&conn, sql, &mut *logger).unwrap();
-        let tables: Vec<String> = get_all_tables(&conn, &mut *logger).unwrap();
+        crate::database::execute_sql(&conn, sql, &logger).unwrap();
+        let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
         assert_eq!(tables.len(), 0);
 
         teardown();
