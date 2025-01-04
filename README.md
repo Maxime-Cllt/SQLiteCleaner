@@ -45,6 +45,12 @@ Check in the releases to download the program.
 <img src="https://img.shields.io/badge/Cargo-informational?style=flat&logo=rust&logoColor=white&color=53a863" alt="Cargo" />
 </div>
 
+## Example of execution
+
+<div align="center">
+<img src="assets/Example.png" alt="Example" width="500px" height="auto" />
+</div>
+
 ## Installation
 
 To run the program :
@@ -63,7 +69,7 @@ cargo build --release
 
 3. Execute the program:
 
-You may need to give the program the right to execute on linux and MacOS:
+You may need to give the program the right to execute on linux and macOS:
 
 ```bash
 chmod +x target/release/SqliteCleaner
@@ -72,13 +78,13 @@ chmod +x target/release/SqliteCleaner
 ### MacOS & Linux
 
 ```bash
-cd target/release/SqliteCleaner "database.db"
+cd target/release/SqliteCleaner "path/to/your_database.db"
 ```
 
 ### Windows
 
 ```bash
-cd target/release/SqliteCleaner.exe "database.db"
+cd target/release/SqliteCleaner.exe "path/to/your_database.db"
 ```
 
 ## Notes
@@ -90,8 +96,6 @@ cd target/release/SqliteCleaner.exe "database.db"
 ## See Also
 
 <ul>
-<li><a href="https://rust-lang.org" target="_blank">Rust</a></li>
-<li><a href="https://sqlite.org" target="_blank">Sqlite</a></li>
 <li><a href="https://github.com/Maxime-Cllt/DBMSCleaner" target="_blank">DBMSCleaner</a></li>
 </ul>
 
