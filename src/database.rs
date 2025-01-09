@@ -61,7 +61,11 @@ pub fn print_report(
     let percentage_of_reduction: u64 = if start_bytes_size == 0 {
         0
     } else {
-        (optimized_bytes * 100) / start_bytes_size
+        if end_size < start_bytes_size {
+            0
+        } else {
+            (optimized_bytes * 100) / start_bytes_size
+        }
     };
 
     let elapsed_time: Duration = start_time.elapsed();

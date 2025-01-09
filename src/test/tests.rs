@@ -118,6 +118,43 @@ mod unit_tests {
 
     #[test]
     #[serial]
+    fn test_get_from_args() {
+        const EXE_PATH: &str = "./SqliteCleaner";
+
+        setup();
+
+        let args_1: Vec<String> = vec![EXE_PATH.to_string()];
+        let args_2: Vec<String> = vec![EXE_PATH.to_string(), DB_PATH.to_string()];
+        let args_3: Vec<String> = vec![
+            EXE_PATH.to_string(),
+            DB_PATH.to_string(),
+            "extra".to_string(),
+        ];
+        let args_4: Vec<String> = vec![
+            EXE_PATH.to_string(),
+            DB_PATH.to_string(),
+            "extra".to_string(),
+            "extra".to_string(),
+        ];
+
+        let config_1: Result<Configuration, std::io::Error> = Configuration::get_from_args(&args_1);
+        let config_2: Result<Configuration, std::io::Error> = Configuration::get_from_args(&args_2);
+        let config_3: Result<Configuration, std::io::Error> = Configuration::get_from_args(&args_3);
+        let config_4: Result<Configuration, std::io::Error> = Configuration::get_from_args(&args_4);
+
+        assert!(config_1.is_err());
+        assert!(config_2.is_ok());
+        assert!(config_3.is_err());
+        assert!(config_4.is_ok());
+
+        assert_eq!(config_2.unwrap().get_db_path(), DB_PATH);
+        assert_eq!(config_4.unwrap().get_db_path(), DB_PATH);
+
+        teardown();
+    }
+
+    #[test]
+    #[serial]
     fn test_get_size_of_database() {
         setup();
 

@@ -13,10 +13,17 @@ use std::time::Instant;
 fn main() {
     let start_time: Instant = Instant::now();
     let logger: Logger = Logger::new();
-    let config: Configuration = Configuration::get_from_args();
+
+    let args: Vec<String> = std::env::args().collect();
+    let config: Configuration = match Configuration::get_from_args(&args) {
+        Ok(c) => c,
+        Err(e) => {
+            logger.log_and_print(&format!("Error getting configuration: {e:?}"));
+            std::process::exit(1);
+        }
+    };
 
     let conn: Connection = open_connection(config.get_db_path(), &logger);
-
     let start_bytes_size: u64 = config.get_size_of_database().unwrap_or_default();
 
     println!("Optimizing database...");
