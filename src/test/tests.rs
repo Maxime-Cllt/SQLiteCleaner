@@ -3,73 +3,28 @@ mod unit_tests {
     use crate::configuration::Configuration;
     use crate::database::{get_all_tables, open_connection};
     use crate::logger::Logger;
+    use crate::test::utils_tests::{create_table, drop_table, setup, teardown};
     use once_cell::sync::Lazy;
-    use serial_test::serial;
     use sqlite::Connection;
-    use std::fs::{remove_file, File, OpenOptions};
+    use std::fs::File;
     use std::path::Path;
-    use std::process::Command;
     use std::sync::Mutex;
-
-    const DB_PATH: &str = "for_test.db";
 
     static LOGGER: Lazy<Mutex<Logger>> = Lazy::new(|| Mutex::new(Logger::new()));
 
-    fn setup() {
-        if Path::new(DB_PATH).exists() {
-            Command::new("chmod")
-                .arg("+w")
-                .arg(DB_PATH)
-                .output()
-                .expect("Failed to change file permissions");
-
-            remove_file(DB_PATH).unwrap();
-        }
-
-        let _file = OpenOptions::new()
-            .create(true) // Create the file if it doesn't exist
-            .append(true) // Append data to the file
-            .open(DB_PATH) // Open the file
-            .unwrap();
-    }
-
-    fn teardown() {
-        if Path::new(DB_PATH).exists() {
-            Command::new("chmod")
-                .arg("+w")
-                .arg(DB_PATH)
-                .output()
-                .expect("Failed to change file permissions");
-
-            remove_file(DB_PATH).unwrap();
-        }
-    }
-
-    fn create_table(conn: &Connection, table_name: &str) {
-        conn.execute(format!(
-            "CREATE TABLE {table_name} (id INTEGER PRIMARY KEY, name TEXT);"
-        ))
-        .unwrap();
-    }
-
-    fn drop_table(conn: &Connection, table_name: &str) {
-        conn.execute(format!("DROP TABLE IF EXISTS {table_name};"))
-            .unwrap();
-    }
-
     #[test]
-    #[serial]
     fn test_open_connection() {
-        setup();
+        const DB_PATH: &str = "open_connection.db";
+        setup(DB_PATH);
         assert!(Path::new(DB_PATH).exists());
         assert!(File::open(DB_PATH).is_ok());
-        teardown();
+        teardown(DB_PATH);
     }
 
     #[test]
-    #[serial]
     fn test_get_all_tables() {
-        setup();
+        const DB_PATH: &str = "get_all_tables.db";
+        setup(DB_PATH);
         let logger = LOGGER.lock().unwrap();
         let conn: Connection = open_connection(DB_PATH, &logger);
         let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
@@ -90,13 +45,13 @@ mod unit_tests {
         let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
         assert_eq!(tables.len(), 0);
 
-        teardown();
+        teardown(DB_PATH);
     }
 
     #[test]
-    #[serial]
     fn test_execute_sql() {
-        setup();
+        const DB_PATH: &str = "execute_sql.db";
+        setup(DB_PATH);
         let logger = LOGGER.lock().unwrap();
         let conn: Connection = Connection::open(DB_PATH).unwrap();
 
@@ -113,15 +68,15 @@ mod unit_tests {
         let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
         assert_eq!(tables.len(), 0);
 
-        teardown();
+        teardown(DB_PATH);
     }
 
     #[test]
-    #[serial]
     fn test_get_from_args() {
         const EXE_PATH: &str = "./SqliteCleaner";
+        const DB_PATH: &str = "get_from_args.db";
 
-        setup();
+        setup(DB_PATH);
 
         let args_1: Vec<String> = vec![EXE_PATH.to_string()];
         let args_2: Vec<String> = vec![EXE_PATH.to_string(), DB_PATH.to_string()];
@@ -150,13 +105,13 @@ mod unit_tests {
         assert_eq!(config_2.unwrap().get_db_path(), DB_PATH);
         assert_eq!(config_4.unwrap().get_db_path(), DB_PATH);
 
-        teardown();
+        teardown(DB_PATH);
     }
 
     #[test]
-    #[serial]
     fn test_get_size_of_database() {
-        setup();
+        const DB_PATH: &str = "get_size_of_database.db";
+        setup(DB_PATH);
 
         let conn: Connection = Connection::open(DB_PATH).unwrap();
 
@@ -173,6 +128,6 @@ mod unit_tests {
         let size: u64 = config.get_size_of_database().unwrap();
         assert_ne!(size, 0);
 
-        teardown();
+        teardown(DB_PATH);
     }
 }

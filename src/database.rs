@@ -58,14 +58,10 @@ pub fn print_report(
 ) {
     let end_size: u64 = config.get_size_of_database().unwrap_or_default(); // Get the size of the database
     let optimized_bytes: u64 = start_bytes_size - end_size;
-    let percentage_of_reduction: u64 = if start_bytes_size == 0 {
+    let percentage_of_reduction: u64 = if start_bytes_size == 0 || (end_size < start_bytes_size) {
         0
     } else {
-        if end_size < start_bytes_size {
-            0
-        } else {
-            (optimized_bytes * 100) / start_bytes_size
-        }
+        (optimized_bytes * 100) / start_bytes_size
     };
 
     let elapsed_time: Duration = start_time.elapsed();
