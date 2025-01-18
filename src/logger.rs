@@ -9,6 +9,8 @@ pub struct Logger {
 
 impl Logger {
     /// Create a new logger object
+    /// # Returns
+    /// A new logger object
     pub fn new() -> Self {
         let log_file: File = std::fs::OpenOptions::new()
             .create(true)
@@ -20,12 +22,16 @@ impl Logger {
     }
 
     /// Log a message to the log file
+    /// # Arguments
+    /// * `message` - The message to log
     pub fn log(&self, message: &str) {
         let mut log_writer = std::io::BufWriter::new(&self.log_file);
         writeln!(log_writer, "[{}] {message}", chrono::Local::now()).unwrap();
     }
 
     /// Log a message to the log file and print it to the console
+    /// # Arguments
+    /// * `message` - The message to log and print
     pub fn log_and_print(&self, message: &str) {
         println!("{message}");
         self.log(message);

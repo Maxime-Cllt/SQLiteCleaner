@@ -5,6 +5,11 @@ use sqlite::Connection;
 use std::time::{Duration, Instant};
 
 /// Open a connection to the database
+/// # Arguments
+/// * `db_path` - The path to the database
+/// * `logger` - The logger to log messages
+/// # Returns
+/// A connection to the database
 pub fn open_connection(db_path: &str, logger: &Logger) -> Connection {
     match Connection::open(db_path) {
         Ok(c) => c,
@@ -16,6 +21,12 @@ pub fn open_connection(db_path: &str, logger: &Logger) -> Connection {
 }
 
 /// Execute an SQL statement
+/// # Arguments
+/// * `conn` - The connection to the database
+/// * `sql` - The SQL statement to execute
+/// * `logger` - The logger to log messages
+/// # Returns
+/// The result
 pub fn execute_sql(conn: &Connection, sql: &str, logger: &Logger) -> Result<(), sqlite::Error> {
     match conn.execute(sql) {
         Ok(()) => Ok(()),
@@ -27,6 +38,11 @@ pub fn execute_sql(conn: &Connection, sql: &str, logger: &Logger) -> Result<(), 
 }
 
 /// Get all tables in the database that are not system tables
+/// # Arguments
+/// * `conn` - The connection to the database
+/// * `logger` - The logger to log messages
+/// # Returns
+/// A vector with the names of the tables
 pub fn get_all_tables(conn: &Connection, logger: &Logger) -> Result<Vec<String>, sqlite::Error> {
     const QUERY_ALL_TABLE_SQL: &str =
         "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%';";
@@ -51,6 +67,13 @@ pub fn get_all_tables(conn: &Connection, logger: &Logger) -> Result<Vec<String>,
 }
 
 /// Print the end message with the size of the database
+/// # Arguments
+/// * `start_time` - The start time of the process
+/// * `start_bytes_size` - The size of the database at the start
+/// * `config` - The configuration of the process
+/// * `logger` - The logger to log messages
+/// # Returns
+/// The result
 pub fn print_report(
     start_time: Instant,
     start_bytes_size: u64,
@@ -67,7 +90,10 @@ pub fn print_report(
 
     let elapsed_time: Duration = start_time.elapsed();
 
-    println!("Size at end {:?} bytes", end_size.to_formatted_string(&Locale::en));
+    println!(
+        "Size at end {:?} bytes",
+        end_size.to_formatted_string(&Locale::en)
+    );
     println!(
         "Total optimized: {:?} bytes, it's reduced by {percentage_of_reduction:?}% the size",
         optimized_bytes.to_formatted_string(&Locale::en)
@@ -79,6 +105,11 @@ pub fn print_report(
 }
 
 /// Process the cleaning of the database
+/// # Arguments
+/// * `conn` - The connection to the database
+/// * `logger` - The logger to log messages
+/// # Returns
+/// The result
 pub fn process_db_cleaning(conn: &Connection, logger: &Logger) -> Result<(), sqlite::Error> {
     const REINDEX_SQL: &str = "REINDEX ";
     const ANALYZE_SQL: &str = "ANALYZE ";

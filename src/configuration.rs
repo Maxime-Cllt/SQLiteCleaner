@@ -7,11 +7,19 @@ pub struct Configuration {
 
 impl Configuration {
     /// Create a new configuration object
+    /// # Arguments
+    /// * `db_path` - The path to the sqlite database file
+    /// # Returns
+    /// * A new configuration object
     pub const fn new(db_path: String) -> Self {
         Self { db_path }
     }
 
     /// Get the configuration object from the command line arguments
+    /// # Arguments
+    /// * `args` - The command line arguments
+    /// # Returns
+    /// * A new configuration object
     pub fn get_from_args(args: &[String]) -> Result<Self, std::io::Error> {
         if args.len() != 2 && args.len() != 4 {
             println!("{args:?}");
@@ -47,11 +55,15 @@ impl Configuration {
     }
 
     /// Get the path to the database file to use
+    /// # Returns
+    /// * The path to the database file
     pub fn get_db_path(&self) -> &str {
         &self.db_path
     }
 
     /// Get the size of using the file system
+    /// # Returns
+    /// * The size of the database file
     pub fn get_size_of_database(&self) -> Result<u64, std::io::Error> {
         let fs: Metadata = std::fs::metadata(&self.db_path)?;
         Ok(fs.len())
