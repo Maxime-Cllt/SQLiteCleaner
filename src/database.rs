@@ -1,5 +1,6 @@
 use crate::configuration::Configuration;
 use crate::logger::Logger;
+use num_format::{Locale, ToFormattedString};
 use sqlite::Connection;
 use std::time::{Duration, Instant};
 
@@ -58,16 +59,18 @@ pub fn print_report(
 ) {
     let end_size: u64 = config.get_size_of_database().unwrap_or_default(); // Get the size of the database
     let optimized_bytes: u64 = start_bytes_size - end_size;
-    let percentage_of_reduction: u64 = if start_bytes_size == 0 || (end_size < start_bytes_size) {
+    let percentage_of_reduction: u64 = if start_bytes_size == 0 || (end_size > start_bytes_size) {
         0
     } else {
         (optimized_bytes * 100) / start_bytes_size
     };
 
     let elapsed_time: Duration = start_time.elapsed();
-    println!("Size at end {end_size:?} bytes");
+
+    println!("Size at end {:?} bytes", end_size.to_formatted_string(&Locale::en));
     println!(
-        "Total optimized: {optimized_bytes:?} bytes, it's reduced by {percentage_of_reduction:?}% the size"
+        "Total optimized: {:?} bytes, it's reduced by {percentage_of_reduction:?}% the size",
+        optimized_bytes.to_formatted_string(&Locale::en)
     );
     println!("Elapsed time: {elapsed_time:?}");
     logger.log(&format!(
