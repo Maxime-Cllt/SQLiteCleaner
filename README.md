@@ -78,13 +78,13 @@ chmod +x target/release/SqliteCleaner
 ### MacOS & Linux
 
 ```bash
-cd target/release/SqliteCleaner "path/to/your_database.db"
+./target/release/SqliteCleaner "path/to/your_database.db"
 ```
 
 ### Windows
 
 ```bash
-cd target/release/SqliteCleaner.exe "path/to/your_database.db"
+.\target\release\SqliteCleaner.exe "path/to/your_database.db"
 ```
 
 ## Notes
