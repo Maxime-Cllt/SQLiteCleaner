@@ -219,7 +219,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: SqliteCleaner-x86_64-unknown-linux-gnu
-          path: ubuntu
+          path: SqliteCleaner-x86_64-unknown-linux-gnu
 
 #      - name: Download artifact (Linux MUSL)
 #        uses: actions/download-artifact@v4
