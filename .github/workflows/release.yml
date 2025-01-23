@@ -251,11 +251,11 @@ jobs:
 #          name: SqliteCleaner-aarch64-pc-windows-msvc
 #          path: windows
 
-      - name: Rename artifacts
-        run: |
-          # Rename Linux artifacts
-          mv ubuntu/SqliteCleaner SqliteCleaner-linux-x86_64-gnu
-#          mv ubuntu/SqliteCleaner SqliteCleaner-linux-x86_64-musl
+#      - name: Rename artifacts
+#        run: |
+#          # Rename Linux artifacts
+#          mv  SqliteCleaner-linux-x86_64-gnu
+##          mv ubuntu/SqliteCleaner SqliteCleaner-linux-x86_64-musl
           
 #          # Rename macOS artifacts
 #          mv macos/SqliteCleaner SqliteCleaner-macos-x86_64
