@@ -211,38 +211,73 @@ jobs:
           name: ${{ github.event.repository.name }}-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/SqliteCleaner.exe
 
-#
-#    upload-artifacts:
-#      needs: build-and-release
-#      runs-on: ubuntu-latest
-#      strategy:
-#        fail-fast: false
-#        matrix:
-#          include:
-#            - { target: x86_64-unknown-linux-gnu }
-#            - { target: x86_64-unknown-linux-musl }
-#            - { target: aarch64-unknown-linux-gnu }
-#            - { target: aarch64-unknown-linux-musl }
-#            - { target: riscv64gc-unknown-linux-gnu }
-#
-#            - { target: x86_64-pc-windows-msvc }
-#            - { target: aarch64-pc-windows-msvc }
-#
-#            - { target: x86_64-apple-darwin }
-#            - { target: aarch64-apple-darwin }
-#      steps:
-#        - name: Fetch Repository
-#          uses: actions/checkout@v4
-#
-#        - name: Download release binary
-#          uses: actions/download-artifact@v3
-#          with:
-#            name: SqliteCleaner-${{ matrix.target }}
-#
-#        - name: Upload release binary to GitHub Release
-#          uses: actions/upload-release-asset@v1
-#          with:
-#            upload_url: ${{ needs.create-release.outputs.upload_url }}
-#            asset_path: target/${{ matrix.target }}/release/SqliteCleaner
-#            asset_name: SqliteCleaner-${{ matrix.target }}
-#            asset_content_type: application/octet-stream
+  release:
+    needs: [ build-and-release ]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download artifact (Linux)
+        uses: actions/download-artifact@v4
+        with:
+          name: SqliteCleaner-x86_64-unknown-linux-gnu
+          path: linux-x86_64-gnu
+
+      - name: Download artifact (Linux MUSL)
+        uses: actions/download-artifact@v4
+        with:
+          name: SqliteCleaner-x86_64-unknown-linux-musl
+          path: linux-x86_64-musl
+
+      - name: Download artifact (macOS x86_64)
+        uses: actions/download-artifact@v4
+        with:
+          name: SqliteCleaner-x86_64-apple-darwin
+          path: macos-x86_64
+
+      - name: Download artifact (macOS aarch64)
+        uses: actions/download-artifact@v4
+        with:
+          name: SqliteCleaner-aarch64-apple-darwin
+          path: macos-aarch64
+
+      - name: Download artifact (Windows x86_64)
+        uses: actions/download-artifact@v4
+        with:
+          name: SqliteCleaner-x86_64-pc-windows-msvc
+          path: windows-x86_64
+
+      - name: Download artifact (Windows aarch64)
+        uses: actions/download-artifact@v4
+        with:
+          name: SqliteCleaner-aarch64-pc-windows-msvc
+          path: windows-aarch64
+
+      - name: Rename artifacts
+        run: |
+          # Rename Linux artifacts
+          mv linux-x86_64-gnu/SqliteCleaner SqliteCleaner-linux-x86_64-gnu
+          mv linux-x86_64-musl/SqliteCleaner SqliteCleaner-linux-x86_64-musl
+          
+          # Rename macOS artifacts
+          mv macos-x86_64/SqliteCleaner SqliteCleaner-macos-x86_64
+          mv macos-aarch64/SqliteCleaner SqliteCleaner-macos-aarch64
+          
+          # Rename Windows artifacts
+          mv windows-x86_64/SqliteCleaner.exe SqliteCleaner-windows-x86_64.exe
+          mv windows-aarch64/SqliteCleaner.exe SqliteCleaner-windows-aarch64.exe
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.get-version.outputs.new_tag_version }}
+          name: ${{ needs.get-version.outputs.new_tag_version }}
+          draft: false
+          prerelease: false
+          files: |
+            SqliteCleaner-linux-x86_64-gnu
+            SqliteCleaner-linux-x86_64-musl
+            SqliteCleaner-macos-x86_64
+            SqliteCleaner-macos-aarch64
+            SqliteCleaner-windows-x86_64.exe
+            SqliteCleaner-windows-aarch64.exe
+          token: ${{ secrets.GITHUB_TOKEN }}

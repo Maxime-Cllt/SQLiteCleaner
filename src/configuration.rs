@@ -24,7 +24,7 @@ impl Configuration {
         if args.len() != 2 && args.len() != 4 {
             println!("{args:?}");
             println!("The program needs 1 argument: the path to the database file");
-            println!("Example: ./SqliteCleaner sqlite_db.db");
+            println!("Example: ./SqliteCleaner \"sqlite_db.db\"");
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 "The program needs 1 argument: the path to the database file",
