@@ -218,6 +218,7 @@ jobs:
   #          name: ${{ github.event.repository.name }}-${{ matrix.target }}
   #          path: target/${{ matrix.target }}/release/SqliteCleaner.exe
 
+
   release:
     needs: [ build-and-release, get-version ]
     runs-on: ubuntu-latest
@@ -229,40 +230,9 @@ jobs:
           name: SqliteCleaner-x86_64-unknown-linux-gnu
           path: target/x86_64-unknown-linux-gnu/release/SqliteCleaner
 
-      #      - name: Download artifact (Linux MUSL)
-      #        uses: actions/download-artifact@v4
-      #        with:
-      #          name: SqliteCleaner-x86_64-unknown-linux-musl
-      #          path: ubuntu
-      #
-      #      - name: Download artifact (macOS x86_64)
-      #        uses: actions/download-artifact@v4
-      #        with:
-      #          name: SqliteCleaner-x86_64-apple-darwin
-      #          path: macos
-      #
-      #      - name: Download artifact (macOS aarch64)
-      #        uses: actions/download-artifact@v4
-      #        with:
-      #          name: SqliteCleaner-aarch64-apple-darwin
-      #          path: macos
-      #
-      #      - name: Download artifact (Windows x86_64)
-      #        uses: actions/download-artifact@v4
-      #        with:
-      #          name: SqliteCleaner-x86_64-pc-windows-msvc
-      #          path: windows
-      #
-      #      - name: Download artifact (Windows aarch64)
-      #        uses: actions/download-artifact@v4
-      #        with:
-      #          name: SqliteCleaner-aarch64-pc-windows-msvc
-      #          path: windows
-
-      #      - name: Rename artifacts
-      #        run: |
-      #          # Rename Linux artifacts
-      #          mv target/x86_64-unknown-linux-gnu/release/SqliteCleaner SqliteCleaner-linux-x86_64-gnu
+      - name: Rename artifacts
+        run: |
+          mv target/x86_64-unknown-linux-gnu/release/SqliteCleaner SqliteCleaner-linux-x86_64-gnu
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -273,9 +243,4 @@ jobs:
           prerelease: false
           files: |
             SqliteCleaner-linux-x86_64-gnu
-          #            SqliteCleaner-linux-x86_64-musl
-          #            SqliteCleaner-macos-x86_64
-          #            SqliteCleaner-macos-aarch64
-          #            SqliteCleaner-windows-x86_64.exe
-          #            SqliteCleaner-windows-aarch64.exe
           token: ${{ secrets.GITHUB_TOKEN }}
