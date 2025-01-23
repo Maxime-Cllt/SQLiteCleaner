@@ -219,7 +219,7 @@ jobs:
   #          path: target/${{ matrix.target }}/release/SqliteCleaner.exe
 
   release:
-    needs: [ build-and-release ]
+    needs: [ build-and-release, get-version ]
     runs-on: ubuntu-latest
     steps:
 
