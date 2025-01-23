@@ -165,22 +165,21 @@ jobs:
       matrix:
         include:
           - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, cross: false }
-          - { os: ubuntu-latest, target: x86_64-unknown-linux-musl, cross: true }
-          - { os: ubuntu-latest, target: aarch64-unknown-linux-gnu, cross: true }
-          - { os: ubuntu-latest, target: aarch64-unknown-linux-musl, cross: true }
-          - { os: ubuntu-latest, target: riscv64gc-unknown-linux-gnu, cross: true }
-
-          - { os: windows-latest, target: x86_64-pc-windows-msvc, cross: false }
-          - { os: windows-latest, target: aarch64-pc-windows-msvc, cross: false }
-
-          - { os: macos-latest, target: x86_64-apple-darwin, cross: false }
-          - { os: macos-latest, target: aarch64-apple-darwin, cross: false }
+#          - { os: ubuntu-latest, target: x86_64-unknown-linux-musl, cross: true }
+#          - { os: ubuntu-latest, target: aarch64-unknown-linux-gnu, cross: true }
+#          - { os: ubuntu-latest, target: aarch64-unknown-linux-musl, cross: true }
+#          - { os: ubuntu-latest, target: riscv64gc-unknown-linux-gnu, cross: true }
+#
+#          - { os: windows-latest, target: x86_64-pc-windows-msvc, cross: false }
+#          - { os: windows-latest, target: aarch64-pc-windows-msvc, cross: false }
+#
+#          - { os: macos-latest, target: x86_64-apple-darwin, cross: false }
+#          - { os: macos-latest, target: aarch64-apple-darwin, cross: false }
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.get-version.outputs.new_tag_version }}
-
 
       - name: Install stable Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -204,12 +203,12 @@ jobs:
           name: ${{ github.event.repository.name }}-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/SqliteCleaner
 
-      - name: Upload release binary (Linux & macOS)
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ github.event.repository.name }}-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/SqliteCleaner.exe
+#      - name: Upload release binary (Linux & macOS)
+#        if: ${{ matrix.os == 'windows-latest' }}
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: ${{ github.event.repository.name }}-${{ matrix.target }}
+#          path: target/${{ matrix.target }}/release/SqliteCleaner.exe
 
   release:
     needs: [ build-and-release ]
@@ -220,51 +219,51 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: SqliteCleaner-x86_64-unknown-linux-gnu
-          path: linux-x86_64-gnu
+          path: ubuntu
 
-      - name: Download artifact (Linux MUSL)
-        uses: actions/download-artifact@v4
-        with:
-          name: SqliteCleaner-x86_64-unknown-linux-musl
-          path: linux-x86_64-musl
-
-      - name: Download artifact (macOS x86_64)
-        uses: actions/download-artifact@v4
-        with:
-          name: SqliteCleaner-x86_64-apple-darwin
-          path: macos-x86_64
-
-      - name: Download artifact (macOS aarch64)
-        uses: actions/download-artifact@v4
-        with:
-          name: SqliteCleaner-aarch64-apple-darwin
-          path: macos-aarch64
-
-      - name: Download artifact (Windows x86_64)
-        uses: actions/download-artifact@v4
-        with:
-          name: SqliteCleaner-x86_64-pc-windows-msvc
-          path: windows-x86_64
-
-      - name: Download artifact (Windows aarch64)
-        uses: actions/download-artifact@v4
-        with:
-          name: SqliteCleaner-aarch64-pc-windows-msvc
-          path: windows-aarch64
+#      - name: Download artifact (Linux MUSL)
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: SqliteCleaner-x86_64-unknown-linux-musl
+#          path: ubuntu
+#
+#      - name: Download artifact (macOS x86_64)
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: SqliteCleaner-x86_64-apple-darwin
+#          path: macos
+#
+#      - name: Download artifact (macOS aarch64)
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: SqliteCleaner-aarch64-apple-darwin
+#          path: macos
+#
+#      - name: Download artifact (Windows x86_64)
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: SqliteCleaner-x86_64-pc-windows-msvc
+#          path: windows
+#
+#      - name: Download artifact (Windows aarch64)
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: SqliteCleaner-aarch64-pc-windows-msvc
+#          path: windows
 
       - name: Rename artifacts
         run: |
           # Rename Linux artifacts
-          mv linux-x86_64-gnu/SqliteCleaner SqliteCleaner-linux-x86_64-gnu
-          mv linux-x86_64-musl/SqliteCleaner SqliteCleaner-linux-x86_64-musl
+          mv ubuntu/SqliteCleaner SqliteCleaner-linux-x86_64-gnu
+#          mv ubuntu/SqliteCleaner SqliteCleaner-linux-x86_64-musl
           
-          # Rename macOS artifacts
-          mv macos-x86_64/SqliteCleaner SqliteCleaner-macos-x86_64
-          mv macos-aarch64/SqliteCleaner SqliteCleaner-macos-aarch64
-          
-          # Rename Windows artifacts
-          mv windows-x86_64/SqliteCleaner.exe SqliteCleaner-windows-x86_64.exe
-          mv windows-aarch64/SqliteCleaner.exe SqliteCleaner-windows-aarch64.exe
+#          # Rename macOS artifacts
+#          mv macos/SqliteCleaner SqliteCleaner-macos-x86_64
+#          mv macos-aarch64/SqliteCleaner SqliteCleaner-macos-aarch64
+#
+#          # Rename Windows artifacts
+#          mv windows/SqliteCleaner.exe SqliteCleaner-windows-x86_64.exe
+#          mv windows/SqliteCleaner.exe SqliteCleaner-windows-aarch64.exe
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -275,9 +274,9 @@ jobs:
           prerelease: false
           files: |
             SqliteCleaner-linux-x86_64-gnu
-            SqliteCleaner-linux-x86_64-musl
-            SqliteCleaner-macos-x86_64
-            SqliteCleaner-macos-aarch64
-            SqliteCleaner-windows-x86_64.exe
-            SqliteCleaner-windows-aarch64.exe
+#            SqliteCleaner-linux-x86_64-musl
+#            SqliteCleaner-macos-x86_64
+#            SqliteCleaner-macos-aarch64
+#            SqliteCleaner-windows-x86_64.exe
+#            SqliteCleaner-windows-aarch64.exe
           token: ${{ secrets.GITHUB_TOKEN }}
