@@ -219,7 +219,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: SqliteCleaner-x86_64-unknown-linux-gnu
-          path: SqliteCleaner-x86_64-unknown-linux-gnu
+          path: target/x86_64-unknown-linux-gnu/release
 
 #      - name: Download artifact (Linux MUSL)
 #        uses: actions/download-artifact@v4
@@ -254,16 +254,7 @@ jobs:
 #      - name: Rename artifacts
 #        run: |
 #          # Rename Linux artifacts
-#          mv  SqliteCleaner-linux-x86_64-gnu
-##          mv ubuntu/SqliteCleaner SqliteCleaner-linux-x86_64-musl
-          
-#          # Rename macOS artifacts
-#          mv macos/SqliteCleaner SqliteCleaner-macos-x86_64
-#          mv macos-aarch64/SqliteCleaner SqliteCleaner-macos-aarch64
-#
-#          # Rename Windows artifacts
-#          mv windows/SqliteCleaner.exe SqliteCleaner-windows-x86_64.exe
-#          mv windows/SqliteCleaner.exe SqliteCleaner-windows-aarch64.exe
+#          mv target/x86_64-unknown-linux-gnu/release/SqliteCleaner SqliteCleaner-linux-x86_64-gnu
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
