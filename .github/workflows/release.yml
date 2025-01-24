@@ -203,13 +203,10 @@ jobs:
         if: ${{ matrix.os != 'windows-latest' }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.repository.name }}-${{ matrix.target }}
+          name: SqliteCleaner-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/SqliteCleaner
-
-      - name: Echo uploaded binary path
-        run: |
-          echo ${{ github.event.repository.name }}-${{ matrix.target }}  + " uploaded"
-  
+          compression-level: 9
+          if-no-files-found: error
 
   #      - name: Upload release binary (Linux & macOS)
   #        if: ${{ matrix.os == 'windows-latest' }}
@@ -227,12 +224,13 @@ jobs:
       - name: Download artifact (Linux)
         uses: actions/download-artifact@v4
         with:
-          name: SqliteCleaner-x86_64-unknown-linux-gnu
-          path: target/x86_64-unknown-linux-gnu/release/SqliteCleaner
+          name: SqliteCleaner
+          path: SqliteCleaner
+          pattern: 'SqliteCleaner-*'
+          merge-multiple: true
 
-      - name: Rename artifacts
-        run: |
-          mv target/x86_64-unknown-linux-gnu/release/SqliteCleaner SqliteCleaner-linux-x86_64-gnu
+      - name: Display structure of downloaded files
+        run: ls -R SqliteCleaner
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -242,5 +240,5 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            SqliteCleaner-linux-x86_64-gnu
+            SqliteCleaner/SqliteCleaner-${{ matrix.target }}
           token: ${{ secrets.GITHUB_TOKEN }}
