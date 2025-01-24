@@ -229,7 +229,7 @@ jobs:
           merge-multiple: true
 
       - name: Display structure of downloaded files
-        run: ls -R SqliteCleaner
+        run: ls -R
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
