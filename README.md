@@ -1,5 +1,5 @@
 <div align="center">
-<h1>Sqlite Cleaner 🚀</h1>
+<h1>Sqlite Cleaner</h1>
 </div>
 
 <div align="center">
