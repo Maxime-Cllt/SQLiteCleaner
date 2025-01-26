@@ -1,38 +1,30 @@
-<div align=center>
-<h1>Sqlite Cleaner</h1>
+<div align="center">
+<h1>Sqlite Cleaner 🚀</h1>
 </div>
 
-
 <div align="center">
-        <img src="https://img.shields.io/badge/Rust-dea584?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
+    <img src="https://img.shields.io/badge/Rust-dea584?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
     <img src="https://img.shields.io/badge/Sqlite-Cleaner-53a863?style=for-the-badge" alt="Database Cleaner" />
     <img src="https://img.shields.io/badge/Version-1.0.0-informational?style=for-the-badge" alt="Version" />
 </div>
 
-## Description
+## 📜 Description
 
-SQlite Cleaner is a program made to be run to clean the database. It will
-reduce the storage of the database and optimise all tables except system tables. It is a simple and efficient way to
-keep your
-database clean and optimised without having to do it manually. It is a great way to keep your database running in the
-best conditions possible. Using Rust, it is compatible with all platforms and can be run on any server or application.
-Check in the releases to download the program.
+SQLite Cleaner is a program designed to clean your SQLite database efficiently. It reduces database storage and optimizes all tables (except system tables). Built with Rust, it is compatible with all platforms, ensuring smooth operation across servers and applications. Download the program from the releases section and keep your database in top shape!
 
-## Features
+## ✨ Features
 
-<ul>
-<li>Reduce storage of the database</li>
-<li>Optimise all tables except system tables</li>
-<li>Simple and efficient way to keep your sqlite database clean</li>
-<li>Compatible with all platforms</li>
-<li>Maintain your database in the best conditions possible</li>
-<li>Don't require any dump or backup</li>
-<li>Don't modify your files configuration</li>
-<li>Easily run on any server or application</li>
-<li>Easy to use</li>
-</ul>
+- 🗃️ Reduce database storage.
+- 🚀 Optimize all tables except system tables.
+- 💡 Simple and efficient way to clean SQLite databases.
+- 🌍 Cross-platform compatibility.
+- ⚙️ Maintain databases in optimal condition.
+- ❌ No need for dumps or backups.
+- 🔒 Does not modify your configuration files.
+- 🖥️ Easily run on any server or application.
+- 🛠️ User-friendly and easy to use.
 
-## Platforms & Requirements
+## 💻 Platforms & Requirements
 
 <div align="center">
 <img src="https://img.shields.io/badge/OS-MacOS-informational?style=flat&logo=apple&logoColor=white&color=53a863" alt="MacOS" />
@@ -45,35 +37,35 @@ Check in the releases to download the program.
 <img src="https://img.shields.io/badge/Cargo-informational?style=flat&logo=rust&logoColor=white&color=53a863" alt="Cargo" />
 </div>
 
-## Example of execution
+## 🖼️ Example of Execution
 
 <div align="center">
 <img src="assets/Example.png" alt="Example" width="500px" height="auto" />
 </div>
 
-## Installation
+## 📥 Installation
 
-To run the program :
+To run the program:
 
 1. Clone the repository:
 
-```bash
-git clone https://github.com/Maxime-Cllt/SqliteCleaner.git
-```
+   ```bash
+   git clone https://github.com/Maxime-Cllt/SqliteCleaner.git
+   ```
 
 2. Build the program:
 
-```bash
-cargo build --release
-```
+   ```bash
+   cargo build --release
+   ```
 
 3. Execute the program:
 
-You may need to give the program the right to execute on linux and macOS:
+   You may need to give the program execute permissions on Linux and macOS:
 
-```bash
-chmod +x target/release/SqliteCleaner
-```
+   ```bash
+   chmod +x target/release/SqliteCleaner
+   ```
 
 ### MacOS & Linux
 
@@ -87,16 +79,12 @@ chmod +x target/release/SqliteCleaner
 .\target\release\SqliteCleaner.exe "path/to/your_database.db"
 ```
 
-## Notes
+## 📝 Notes
 
-- Time complexity: O(n) where n is the number of tables in the database
-- Don't clean triggers, stored procedures, functions, and views
-- May not reduce much storage but don't cost much time to run and can be run frequently
+- ⏱️ Time complexity: O(n), where n is the number of tables in the database.
+- ⚠️ Does not clean triggers, stored procedures, functions, and views.
+- 📉 May not reduce storage significantly but is quick to run and can be executed frequently.
 
-## See Also
+## 🔗 See Also
 
-<ul>
-<li><a href="https://github.com/Maxime-Cllt/DBMSCleaner" target="_blank">DBMSCleaner</a></li>
-</ul>
-
-
+- 🌐 [DBMSCleaner](https://github.com/Maxime-Cllt/DBMSCleaner)
