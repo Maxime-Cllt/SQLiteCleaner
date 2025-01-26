@@ -1,7 +1,5 @@
-// Logger class
-
 use std::fs::File;
-use std::io::Write;
+use std::io::{BufWriter, Write};
 
 pub struct Logger {
     log_file: File,
@@ -15,7 +13,7 @@ impl Logger {
         let log_file: File = std::fs::OpenOptions::new()
             .create(true)
             .append(true)
-            .open("SqltieClient.log")
+            .open("SqliteCleaner.log")
             .unwrap();
 
         Self { log_file }
@@ -25,7 +23,7 @@ impl Logger {
     /// # Arguments
     /// * `message` - The message to log
     pub fn log(&self, message: &str) {
-        let mut log_writer = std::io::BufWriter::new(&self.log_file);
+        let mut log_writer: BufWriter<&File> = BufWriter::new(&self.log_file);
         writeln!(log_writer, "[{}] {message}", chrono::Local::now()).unwrap();
     }
 
