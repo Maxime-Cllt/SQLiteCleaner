@@ -252,5 +252,5 @@ jobs:
           name: ${{ needs.get-version.outputs.new_tag_version }}
           draft: false
           prerelease: false
-          files: artifacts/*
+          files: artifacts/**/*
           token: ${{ secrets.GITHUB_TOKEN }}
