@@ -206,25 +206,28 @@ jobs:
         run: |
           mv target/${{ matrix.target }}/release/SQLiteCleaner target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}
 
-      #      - name: Rename binary (Windows)
-      #        if: ${{ matrix.os == 'windows-latest' }}
-      #        run: |
-      #          mv target/${{ matrix.target }}/release/SQLiteCleaner.exe target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}.exe
+
+      - name: Rename binary (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          mv target/${{ matrix.target }}/release/SQLiteCleaner.exe target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}.exe
 
 
       - name: Upload release binary (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: SQLiteCleaner-${{ matrix.target }}.exe
           path: target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}.exe
+          compression-level: '9'
 
       - name: Upload release binary (Linux & macOS)
         if: ${{ matrix.os != 'windows-latest' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: SQLiteCleaner-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}
+          compression-level: '9'
   
 
   upload-release:
@@ -235,12 +238,12 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          path: ./artifacts
+          path: artifacts
 
       - name: List downloaded artifacts
         run: |
           echo "Listing contents of artifacts directory"
-          ls -R .
+          ls -R artifacts
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -249,5 +252,5 @@ jobs:
           name: ${{ needs.get-version.outputs.new_tag_version }}
           draft: false
           prerelease: false
-          files: ./artifacts/*
+          files: artifacts/*
           token: ${{ secrets.GITHUB_TOKEN }}
