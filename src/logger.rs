@@ -13,7 +13,7 @@ impl Logger {
         let log_file: File = std::fs::OpenOptions::new()
             .create(true)
             .append(true)
-            .open("SqliteCleaner.log")
+            .open("SQLiteCleaner.log")
             .unwrap();
 
         Self { log_file }

@@ -37,13 +37,13 @@ jobs:
         run: cargo build --release --target ${{matrix.arch}}
 
       - name: Rename binary
-        run: mv target/${{ matrix.arch }}/release/SqliteCleaner target/${{ matrix.arch }}/release/SqliteCleaner-${{ matrix.arch }}
+        run: mv target/${{ matrix.arch }}/release/SQLiteCleaner target/${{ matrix.arch }}/release/SQLiteCleaner-${{ matrix.arch }}
 
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
         with:
           name: macOS-app-${{ matrix.arch }}
-          path: target/${{ matrix.arch }}/release/SqliteCleaner-${{ matrix.arch }}
+          path: target/${{ matrix.arch }}/release/SQLiteCleaner-${{ matrix.arch }}
 
   build-windows:
     name: Build for Windows (x86 and ARM)
@@ -75,21 +75,20 @@ jobs:
         run: cargo build --release --target ${{matrix.arch}}
 
       - name: Rename binary
-        run: mv target/${{ matrix.arch }}/release/SqliteCleaner.exe target/${{ matrix.arch }}/release/SqliteCleaner-${{ matrix.arch }}.exe
+        run: mv target/${{ matrix.arch }}/release/SQLiteCleaner.exe target/${{ matrix.arch }}/release/SQLiteCleaner-${{ matrix.arch }}.exe
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-app-${{ matrix.arch }}
-          path: target/${{ matrix.arch }}/release/SqliteCleaner-${{ matrix.arch }}.exe
-
+          path: target/${{ matrix.arch }}/release/SQLiteCleaner-${{ matrix.arch }}.exe
 
   build-linux-x86-64:
     name: Build for Linux x86
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [ x86_64-unknown-linux-musl ]
+        arch: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-musl, aarch64-unknown-linux-gnu, riscv64gc-unknown-linux-gnu ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -114,13 +113,13 @@ jobs:
         run: cargo build --release --target ${{ matrix.arch }}
 
       - name: Rename binary
-        run: mv target/${{ matrix.arch }}/release/SqliteCleaner target/${{ matrix.arch }}/release/SqliteCleaner-${{ matrix.arch }}
+        run: mv target/${{ matrix.arch }}/release/SQLiteCleaner target/${{ matrix.arch }}/release/SQLiteCleaner-${{ matrix.arch }}
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-app-${{ matrix.arch }}
-          path: target/${{ matrix.arch }}/release/SqliteCleaner-${{ matrix.arch }}
+          path: target/${{ matrix.arch }}/release/SQLiteCleaner-${{ matrix.arch }}
 
 
   #  build-linux-aarch64:
@@ -156,7 +155,7 @@ jobs:
   #        uses: actions/upload-artifact@v4
   #        with:
   #          name: linux-app-${{ matrix.arch }}
-  #          path: target/${{ matrix.arch }}/release/SqliteCleaner
+  #          path: target/${{ matrix.arch }}/release/SQLiteCleaner
 
 
   create-release:

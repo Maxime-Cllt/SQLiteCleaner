@@ -67,7 +67,7 @@ fn test_execute_sql() {
 
 #[test]
 fn test_get_from_args() {
-    const EXE_PATH: &str = "./SqliteCleaner";
+    const EXE_PATH: &str = "./SQLiteCleaner";
     const DB_PATH: &str = "get_from_args.db";
     const EXTRA: &str = "extra";
 

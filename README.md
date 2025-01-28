@@ -1,5 +1,5 @@
 <div align="center">
-<h1>Sqlite Cleaner 🚀</h1>
+<h1>SQLiteCleaner</h1>
 </div>
 
 <div align="center">
@@ -14,7 +14,7 @@ SQLite Cleaner is a program designed to clean your SQLite database efficiently. 
 
 ## ✨ Features
 
-- 🗃️ Reduce database storage.
+- 🗃️ Reduce database storage but don't delete any data.
 - 🚀 Optimize all tables except system tables.
 - 💡 Simple and efficient way to clean SQLite databases.
 - 🌍 Cross-platform compatibility.
@@ -50,7 +50,7 @@ To run the program:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/Maxime-Cllt/SqliteCleaner.git
+   git clone https://github.com/Maxime-Cllt/SQLiteCleaner.git
    ```
 
 2. Build the program:
@@ -64,24 +64,24 @@ To run the program:
    You may need to give the program execute permissions on Linux and macOS:
 
    ```bash
-   chmod +x target/release/SqliteCleaner
+   chmod +x target/release/SQLiteCleaner
    ```
 
 ### MacOS & Linux
 
 ```bash
-./target/release/SqliteCleaner "path/to/your_database.db"
+./target/release/SQLiteCleaner "path/to/your_database.db"
 ```
 
 ### Windows
 
 ```bash
-.\target\release\SqliteCleaner.exe "path/to/your_database.db"
+.\target\release\SQLiteCleaner.exe "path/to/your_database.db"
 ```
 
 ## 📝 Notes
 
-- ⏱️ Time complexity: O(n), where n is the number of tables in the database.
+- ⏱️ Fast execution.
 - ⚠️ Does not clean triggers, stored procedures, functions, and views.
 - 📉 May not reduce storage significantly but is quick to run and can be executed frequently.
 
