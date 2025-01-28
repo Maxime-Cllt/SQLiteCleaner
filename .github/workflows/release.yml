@@ -36,9 +36,6 @@ on:
         type: boolean
       overwrite_tag:
         type: boolean
-  push:
-    branches:
-      - 'release_gha'
 
 jobs:
   validate-input:

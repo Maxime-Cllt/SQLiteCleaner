@@ -4,22 +4,9 @@ use std::path::Path;
 use std::process::Command;
 
 pub fn setup(db_name: &str) {
+    // If the file exists, remove it
     if Path::new(db_name).exists() {
-        if cfg!(windows) {
-            Command::new("attrib")
-                .arg("-r")
-                .arg(db_name)
-                .output()
-                .expect("Failed to change file permissions");
-        } else {
-            Command::new("chmod")
-                .arg("+w")
-                .arg(db_name)
-                .output()
-                .expect("Failed to change file permissions");
-        }
-
-        remove_file(db_name).unwrap();
+        teardown(db_name);
     }
 
     let _file = OpenOptions::new()
@@ -45,7 +32,9 @@ pub fn teardown(db_name: &str) {
                 .expect("Failed to change file permissions");
         }
         match remove_file(db_name) {
-            Ok(_) => {}
+            Ok(_) => {
+                println!("File {db_name} has been removed.");
+            }
             Err(e) => {
                 eprintln!("Error: {e}");
             }

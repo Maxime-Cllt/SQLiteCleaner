@@ -39,6 +39,8 @@ fn test_get_all_tables() {
     let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
     assert_eq!(tables.len(), 0);
 
+    drop(conn);
+
     teardown(DB_PATH);
 }
 
@@ -61,6 +63,8 @@ fn test_execute_sql() {
     crate::database::execute_sql(&conn, sql, &logger).unwrap();
     let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
     assert_eq!(tables.len(), 0);
+
+    drop(conn);
 
     teardown(DB_PATH);
 }
@@ -127,6 +131,8 @@ fn test_get_size_of_database() {
 
     let size: u64 = config.get_size_of_database().unwrap();
     assert_ne!(size, 0);
+
+    drop(conn);
 
     teardown(DB_PATH);
 }
