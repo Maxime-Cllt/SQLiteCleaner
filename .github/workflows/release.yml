@@ -235,12 +235,12 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: ./artifacts
 
       - name: List downloaded artifacts
         run: |
-          echo "Listing contents of artifacts directory:
-          ls -R artifacts
+          echo "Listing contents of artifacts directory"
+          ls -R .
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -249,5 +249,5 @@ jobs:
           name: ${{ needs.get-version.outputs.new_tag_version }}
           draft: false
           prerelease: false
-          files: artifacts/*
+          files: ./artifacts/*
           token: ${{ secrets.GITHUB_TOKEN }}
