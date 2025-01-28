@@ -227,8 +227,9 @@ jobs:
           path: target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}.exe
 
       - name: Print all files
+        if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          ls -la . 
+          ls -la target/${{ matrix.target }}/release
   
 
   upload-release:
