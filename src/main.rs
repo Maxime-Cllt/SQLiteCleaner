@@ -7,9 +7,9 @@ mod test;
 use crate::configuration::Configuration;
 use crate::database::{open_connection, print_report, process_db_cleaning};
 use crate::logger::Logger;
+use num_format::{Locale, ToFormattedString};
 use sqlite::Connection;
 use std::time::Instant;
-use num_format::{Locale, ToFormattedString};
 
 fn main() {
     let start_time: Instant = Instant::now();
@@ -28,7 +28,10 @@ fn main() {
     let start_bytes_size: u64 = config.get_size_of_database().unwrap_or_default();
 
     println!("Optimizing database...");
-    println!("Size at start {:?} bytes", start_bytes_size.to_formatted_string(&Locale::en));
+    println!(
+        "Size at start {:?} bytes",
+        start_bytes_size.to_formatted_string(&Locale::en)
+    );
 
     match process_db_cleaning(&conn, &logger) {
         Ok(()) => (),

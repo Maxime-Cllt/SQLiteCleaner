@@ -10,7 +10,10 @@
 
 ## 📜 Description
 
-SQLite Cleaner is a program designed to clean your SQLite database efficiently. It reduces database storage and optimizes all tables (except system tables). Built with Rust, it is compatible with all platforms, ensuring smooth operation across servers and applications. Download the program from the releases section and keep your database in top shape!
+SQLite Cleaner is a program designed to clean your SQLite database efficiently. It reduces database storage and
+optimizes all tables (except system tables). Built with Rust, it is compatible with all platforms, ensuring smooth
+operation across servers and applications. Download the program from the releases section and keep your database in top
+shape!
 
 ## ✨ Features
 
