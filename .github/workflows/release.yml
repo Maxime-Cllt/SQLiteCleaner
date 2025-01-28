@@ -212,19 +212,19 @@ jobs:
       #          mv target/${{ matrix.target }}/release/SQLiteCleaner.exe target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}.exe
 
 
-      #      - name: Upload release binary (Windows)
-      #        if: ${{ matrix.os == 'windows-latest' }}
-      #        uses: actions/upload-artifact@v3
-      #        with:
-      #          name: SQLiteCleaner-${{ matrix.target }}
-      #          path: target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}
+      - name: Upload release binary (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: SQLiteCleaner-${{ matrix.target }}.exe
+          path: target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}.exe
 
       - name: Upload release binary (Linux & macOS)
         if: ${{ matrix.os != 'windows-latest' }}
         uses: actions/upload-artifact@v3
         with:
-          name: SQLiteCleaner-${{ matrix.target }}.exe
-          path: target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}.exe
+          name: SQLiteCleaner-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/SQLiteCleaner-${{ matrix.target }}
   
 
   upload-release:
