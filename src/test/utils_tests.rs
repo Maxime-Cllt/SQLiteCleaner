@@ -5,11 +5,19 @@ use std::process::Command;
 
 pub fn setup(db_name: &str) {
     if Path::new(db_name).exists() {
-        Command::new("chmod")
-            .arg("+w")
-            .arg(db_name)
-            .output()
-            .expect("Failed to change file permissions");
+        if cfg!(windows) {
+            Command::new("attrib")
+                .arg("-r")
+                .arg(db_name)
+                .output()
+                .expect("Failed to change file permissions");
+        } else {
+            Command::new("chmod")
+                .arg("+w")
+                .arg(db_name)
+                .output()
+                .expect("Failed to change file permissions");
+        }
 
         remove_file(db_name).unwrap();
     }
@@ -23,24 +31,44 @@ pub fn setup(db_name: &str) {
 
 pub fn teardown(db_name: &str) {
     if Path::new(db_name).exists() {
-        Command::new("chmod")
-            .arg("+w")
-            .arg(db_name)
-            .output()
-            .expect("Failed to change file permissions");
-
-        remove_file(db_name).unwrap();
+        if cfg!(windows) {
+            Command::new("attrib")
+                .arg("-r")
+                .arg(db_name)
+                .output()
+                .expect("Failed to change file permissions");
+        } else {
+            Command::new("chmod")
+                .arg("+w")
+                .arg(db_name)
+                .output()
+                .expect("Failed to change file permissions");
+        }
+        match remove_file(db_name) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!("Error: {e}");
+            }
+        }
     }
 }
 
 pub fn create_table(conn: &Connection, table_name: &str) {
-    conn.execute(format!(
+    match conn.execute(format!(
         "CREATE TABLE {table_name} (id INTEGER PRIMARY KEY, name TEXT);"
-    ))
-    .unwrap();
+    )) {
+        Ok(_) => {}
+        Err(e) => {
+            eprintln!("Error: {e}");
+        }
+    }
 }
 
 pub fn drop_table(conn: &Connection, table_name: &str) {
-    conn.execute(format!("DROP TABLE IF EXISTS {table_name};"))
-        .unwrap();
+    match conn.execute(format!("DROP TABLE IF EXISTS {table_name};")) {
+        Ok(_) => {}
+        Err(e) => {
+            eprintln!("Error: {e}");
+        }
+    }
 }

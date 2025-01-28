@@ -1,8 +1,8 @@
 [package]
-name = "SqliteCleaner"
+name = "SQLiteCleaner"
 version = "1.0.0"
 edition = "2021"
-repository = "https://github.com/Maxime-Cllt/SqliteCleaner.git"
+repository = "https://github.com/Maxime-Cllt/SQLiteCleaner.git"
 description = "A simple tool to clean your sqlite database"
 authors = ["Maxime Cllt"]
 
