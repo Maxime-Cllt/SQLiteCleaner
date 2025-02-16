@@ -32,7 +32,7 @@ impl Configuration {
         }
 
         let db_path: String = match args.len() {
-            2 | 4 => args[1].clone(),
+            2 => args[1].clone(),
             _ => Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
                 "The program needs 1 argument: the path to the database file",
@@ -49,7 +49,7 @@ impl Configuration {
         } else {
             Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("The database file must be a sqlite file, got: {db_path}"),
+                format!("The database file must be a sqlite file with extension .db or .sqlite, but got: {extension}" ),
             ))
         }
     }
