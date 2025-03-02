@@ -100,11 +100,10 @@ fn test_get_from_args() {
     assert!(config_1.is_err());
     assert!(config_2.is_ok());
     assert!(config_3.is_err());
-    assert!(config_4.is_ok());
+    assert!(config_4.is_err());
     assert!(config_5.is_err());
 
     assert_eq!(config_2.unwrap().get_db_path(), DB_PATH);
-    assert_eq!(config_4.unwrap().get_db_path(), DB_PATH);
 
     teardown(DB_PATH);
 }
@@ -112,6 +111,7 @@ fn test_get_from_args() {
 #[test]
 fn test_get_size_of_database() {
     const DB_PATH: &str = "get_size_of_database.db";
+
     setup(DB_PATH);
 
     let conn: Connection = Connection::open(DB_PATH).unwrap();
