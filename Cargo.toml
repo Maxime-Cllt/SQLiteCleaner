@@ -1,21 +1,22 @@
 [package]
 name = "SQLiteCleaner"
-version = "1.0.0"
-edition = "2021"
+version = "1.0.1"
+edition = "2024"
 repository = "https://github.com/Maxime-Cllt/SQLiteCleaner.git"
-description = "A simple tool to clean your sqlite database"
-authors = ["Maxime Cllt"]
+description = "A simple tool to clean your SQLite database"
+authors = ["Maxime-Cllt"]
 
 
 [dependencies]
-chrono = "0.4.39" # Date and time library for Rust
-sqlite = "0.36.1"
-num-format = "0.4.4"
+chrono = "*"
+sqlite = "*"
+num-format = "*"
+once_cell = "*"
 
 [dev-dependencies]
 
 [profile.dev]
-incremental = true # Compile your binary in smaller steps.
+incremental = true
 codegen-units = 20
 opt-level = 0
 panic = "unwind"

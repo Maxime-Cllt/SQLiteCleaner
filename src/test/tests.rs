@@ -1,6 +1,5 @@
 use crate::configuration::Configuration;
 use crate::database::{get_all_tables, open_connection};
-use crate::logger::Logger;
 use crate::test::utils_tests::{create_table, drop_table, setup, teardown};
 use sqlite::Connection;
 use std::fs::File;
@@ -19,15 +18,14 @@ fn test_open_connection() {
 fn test_get_all_tables() {
     const DB_PATH: &str = "get_all_tables.db";
     setup(DB_PATH);
-    let logger: Logger = Logger::new();
-    let conn: Connection = open_connection(DB_PATH, &logger);
-    let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
+    let conn: Connection = open_connection(DB_PATH);
+    let tables: Vec<String> = get_all_tables(&conn).unwrap();
     assert_eq!(tables.len(), 0);
 
     create_table(&conn, "users");
     create_table(&conn, "posts");
 
-    let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
+    let tables: Vec<String> = get_all_tables(&conn).unwrap();
     assert_eq!(tables.len(), 2);
 
     assert!(tables.contains(&"users".to_string()));
@@ -36,7 +34,7 @@ fn test_get_all_tables() {
     drop_table(&conn, "users");
     drop_table(&conn, "posts");
 
-    let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
+    let tables: Vec<String> = get_all_tables(&conn).unwrap();
     assert_eq!(tables.len(), 0);
 
     drop(conn);
@@ -48,20 +46,19 @@ fn test_get_all_tables() {
 fn test_execute_sql() {
     const DB_PATH: &str = "execute_sql.db";
     setup(DB_PATH);
-    let logger: Logger = Logger::new();
     let conn: Connection = Connection::open(DB_PATH).unwrap();
 
     assert!(Path::new(DB_PATH).exists());
 
     let sql: &str = "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);";
-    crate::database::execute_sql(&conn, sql, &logger).unwrap();
-    let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
+    crate::database::execute_sql(&conn, sql).unwrap();
+    let tables: Vec<String> = get_all_tables(&conn).unwrap();
     assert_eq!(tables.len(), 1);
     assert!(tables.contains(&"users".to_string()));
 
     let sql: &str = "DROP TABLE IF EXISTS users;";
-    crate::database::execute_sql(&conn, sql, &logger).unwrap();
-    let tables: Vec<String> = get_all_tables(&conn, &logger).unwrap();
+    crate::database::execute_sql(&conn, sql).unwrap();
+    let tables: Vec<String> = get_all_tables(&conn).unwrap();
     assert_eq!(tables.len(), 0);
 
     drop(conn);
@@ -103,11 +100,10 @@ fn test_get_from_args() {
     assert!(config_1.is_err());
     assert!(config_2.is_ok());
     assert!(config_3.is_err());
-    assert!(config_4.is_ok());
+    assert!(config_4.is_err());
     assert!(config_5.is_err());
 
     assert_eq!(config_2.unwrap().get_db_path(), DB_PATH);
-    assert_eq!(config_4.unwrap().get_db_path(), DB_PATH);
 
     teardown(DB_PATH);
 }
@@ -115,6 +111,7 @@ fn test_get_from_args() {
 #[test]
 fn test_get_size_of_database() {
     const DB_PATH: &str = "get_size_of_database.db";
+
     setup(DB_PATH);
 
     let conn: Connection = Connection::open(DB_PATH).unwrap();

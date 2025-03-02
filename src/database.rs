@@ -1,5 +1,5 @@
 use crate::configuration::Configuration;
-use crate::logger::Logger;
+use crate::logger::{log_and_print_message, log_message};
 use num_format::{Locale, ToFormattedString};
 use sqlite::Connection;
 use std::time::{Duration, Instant};
@@ -10,11 +10,11 @@ use std::time::{Duration, Instant};
 /// * `logger` - The logger to log messages
 /// # Returns
 /// A connection to the database
-pub fn open_connection(db_path: &str, logger: &Logger) -> Connection {
+pub fn open_connection(db_path: &str) -> Connection {
     match Connection::open(db_path) {
         Ok(c) => c,
         Err(e) => {
-            logger.log_and_print(&format!("Error opening connection to database: {e:?}"));
+            log_and_print_message(&format!("Error opening connection to database: {e:?}"));
             std::process::exit(1);
         }
     }
@@ -27,11 +27,11 @@ pub fn open_connection(db_path: &str, logger: &Logger) -> Connection {
 /// * `logger` - The logger to log messages
 /// # Returns
 /// The result
-pub fn execute_sql(conn: &Connection, sql: &str, logger: &Logger) -> Result<(), sqlite::Error> {
+pub fn execute_sql(conn: &Connection, sql: &str) -> Result<(), sqlite::Error> {
     match conn.execute(sql) {
         Ok(()) => Ok(()),
         Err(e) => {
-            logger.log_and_print(&format!("Error executing SQL '{sql}': {e:?}"));
+            log_and_print_message(&format!("Error executing SQL '{sql}': {e:?}"));
             Err(e)
         }
     }
@@ -43,7 +43,7 @@ pub fn execute_sql(conn: &Connection, sql: &str, logger: &Logger) -> Result<(), 
 /// * `logger` - The logger to log messages
 /// # Returns
 /// A vector with the names of the tables
-pub fn get_all_tables(conn: &Connection, logger: &Logger) -> Result<Vec<String>, sqlite::Error> {
+pub fn get_all_tables(conn: &Connection) -> Result<Vec<String>, sqlite::Error> {
     const QUERY_ALL_TABLE_SQL: &str =
         "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%';";
 
@@ -60,7 +60,7 @@ pub fn get_all_tables(conn: &Connection, logger: &Logger) -> Result<Vec<String>,
     }) {
         Ok(()) => Ok(result_all_tables),
         Err(e) => {
-            logger.log_and_print(&format!("Error getting all tables: {e:?}"));
+            log_and_print_message(&format!("Error getting all tables: {e:?}"));
             Err(e)
         }
     }
@@ -74,12 +74,7 @@ pub fn get_all_tables(conn: &Connection, logger: &Logger) -> Result<Vec<String>,
 /// * `logger` - The logger to log messages
 /// # Returns
 /// The result
-pub fn print_report(
-    start_time: Instant,
-    start_bytes_size: u64,
-    config: &Configuration,
-    logger: &Logger,
-) {
+pub fn print_report(start_time: Instant, start_bytes_size: u64, config: &Configuration) {
     let end_size: u64 = config.get_size_of_database().unwrap_or_default(); // Get the size of the database
     let optimized_bytes: u64 = start_bytes_size - end_size;
     let percentage_of_reduction: u64 = if start_bytes_size == 0 || (end_size > start_bytes_size) {
@@ -99,7 +94,7 @@ pub fn print_report(
         optimized_bytes.to_formatted_string(&Locale::en)
     );
     println!("Elapsed time: {elapsed_time:?}");
-    logger.log(&format!(
+    log_message(&format!(
         "FROM : {start_bytes_size:?} bytes, TO : {end_size:?} bytes, OPTIMIZED : {optimized_bytes:?} bytes, DURATION : {elapsed_time:?}"
     ));
 }
@@ -110,29 +105,29 @@ pub fn print_report(
 /// * `logger` - The logger to log messages
 /// # Returns
 /// The result
-pub fn process_db_cleaning(conn: &Connection, logger: &Logger) -> Result<(), sqlite::Error> {
+pub fn process_db_cleaning(conn: &Connection) -> Result<(), sqlite::Error> {
     const REINDEX_SQL: &str = "REINDEX ";
     const ANALYZE_SQL: &str = "ANALYZE ";
     const VACUUM_SQL: &str = "VACUUM ";
 
-    let result_all_tables: Vec<String> = match get_all_tables(conn, logger) {
+    let result_all_tables: Vec<String> = match get_all_tables(conn) {
         Ok(tables) => tables,
         Err(e) => {
-            logger.log_and_print(&format!("Error getting all tables: {e:?}"));
+            log_and_print_message(&format!("Error getting all tables: {e:?}"));
             return Err(e);
         }
     };
 
-    for table_name in &result_all_tables {
+    for table_name in result_all_tables.iter() {
         let sql_commands: [String; 3] = [
-            format!("{}'{}';", &VACUUM_SQL, &table_name),
-            format!("{}'{}';", &REINDEX_SQL, &table_name),
-            format!("{}'{}';", &ANALYZE_SQL, &table_name),
+            format!("{VACUUM_SQL}'{table_name}';"),
+            format!("{REINDEX_SQL}'{table_name}';"),
+            format!("{ANALYZE_SQL}'{table_name}';"),
         ];
 
         for sql in &sql_commands {
-            if let Err(e) = execute_sql(conn, sql, logger) {
-                logger.log_and_print(&format!("Error executing SQL '{sql}': {e:?}"));
+            if let Err(e) = execute_sql(conn, sql) {
+                log_and_print_message(&format!("Error executing SQL '{sql}': {e:?}"));
             }
         }
     }
