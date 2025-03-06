@@ -12,8 +12,13 @@ chrono = "*"
 sqlite = "*"
 num-format = "*"
 once_cell = "*"
+dhat = "*"
 
 [dev-dependencies]
+
+
+[features]
+dhat-heap = []
 
 [profile.dev]
 incremental = true
@@ -27,7 +32,7 @@ overflow-checks = true
 [profile.release]
 incremental = false
 codegen-units = 1
-opt-level = 2
+opt-level = 3
 panic = "abort"
 strip = true
 debug = false

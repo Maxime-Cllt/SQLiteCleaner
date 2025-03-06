@@ -94,9 +94,11 @@ pub fn print_report(start_time: Instant, start_bytes_size: u64, config: &Configu
         optimized_bytes.to_formatted_string(&Locale::en)
     );
     println!("Elapsed time: {elapsed_time:?}");
-    log_message(&format!(
-        "FROM : {start_bytes_size:?} bytes, TO : {end_size:?} bytes, OPTIMIZED : {optimized_bytes:?} bytes, DURATION : {elapsed_time:?}"
-    ));
+    let json_log: String = format!(
+        r#"{{"from_bytes": {start_bytes_size},"to_bytes": {end_size},"optimized_bytes": {optimized_bytes},"percentage_of_reduction": {percentage_of_reduction},"elapsed_time_ms": "{:?}"}}"#,
+        elapsed_time.as_millis(),
+    );
+    log_message(&json_log);
 }
 
 /// Process the cleaning of the database

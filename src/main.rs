@@ -11,7 +11,15 @@ use num_format::{Locale, ToFormattedString};
 use sqlite::Connection;
 use std::time::Instant;
 
+#[cfg(feature = "dhat-heap")]
+#[global_allocator]
+static ALLOC: dhat::Alloc = dhat::Alloc;
+
 fn main() {
+
+    #[cfg(feature = "dhat-heap")]
+    let _profiler = dhat::Profiler::new_heap();
+
     let start_time: Instant = Instant::now();
 
     let args: Vec<String> = std::env::args().collect();
