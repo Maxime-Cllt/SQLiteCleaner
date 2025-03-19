@@ -6,22 +6,13 @@ mod test;
 
 use crate::configuration::Configuration;
 use crate::database::{open_connection, print_report, process_db_cleaning};
-use crate::logger::{log_and_print_message};
+use crate::logger::log_and_print_message;
 use num_format::{Locale, ToFormattedString};
 use sqlite::Connection;
 use std::time::Instant;
 
-#[cfg(feature = "dhat-heap")]
-#[global_allocator]
-static ALLOC: dhat::Alloc = dhat::Alloc;
-
 fn main() {
-
-    #[cfg(feature = "dhat-heap")]
-    let _profiler = dhat::Profiler::new_heap();
-
     let start_time: Instant = Instant::now();
-
     let args: Vec<String> = std::env::args().collect();
     let config: Configuration = match Configuration::get_from_args(&args) {
         Ok(c) => c,
@@ -40,12 +31,9 @@ fn main() {
         start_bytes_size.to_formatted_string(&Locale::en)
     );
 
-    match process_db_cleaning(&conn) {
-        Ok(()) => (),
-        Err(e) => {
-            log_and_print_message(&format!("Error processing the cleaning: {e:?}"));
-            return;
-        }
+    if let Err(e) = process_db_cleaning(&conn) {
+        log_and_print_message(&format!("Error processing the cleaning: {e:?}"));
+        return;
     }
 
     print_report(start_time, start_bytes_size, &config);

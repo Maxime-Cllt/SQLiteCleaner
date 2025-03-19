@@ -49,7 +49,9 @@ impl Configuration {
         } else {
             Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("The database file must be a sqlite file with extension .db or .sqlite, but got: {extension}" ),
+                format!(
+                    "The database file must be a sqlite file with extension .db or .sqlite, but got: {extension}"
+                ),
             ))
         }
     }

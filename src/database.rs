@@ -47,13 +47,12 @@ pub fn get_all_tables(conn: &Connection) -> Result<Vec<String>, sqlite::Error> {
     const QUERY_ALL_TABLE_SQL: &str =
         "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%';";
 
-    // Query the tables
-    let mut result_all_tables: Vec<String> = Vec::new();
+    let mut result_all_tables: Vec<String> = Vec::new(); // Query the tables
 
     match conn.iterate(QUERY_ALL_TABLE_SQL, |pairs| {
         for &(_, value) in pairs {
             if let Some(value) = value {
-                result_all_tables.push(value.to_string());
+                result_all_tables.push(value.into());
             }
         }
         true
@@ -76,8 +75,12 @@ pub fn get_all_tables(conn: &Connection) -> Result<Vec<String>, sqlite::Error> {
 /// The result
 pub fn print_report(start_time: Instant, start_bytes_size: u64, config: &Configuration) {
     let end_size: u64 = config.get_size_of_database().unwrap_or_default(); // Get the size of the database
-    let optimized_bytes: u64 = start_bytes_size - end_size;
-    let percentage_of_reduction: u64 = if start_bytes_size == 0 || (end_size > start_bytes_size) {
+    let optimized_bytes: u64 = if start_bytes_size == 0 || end_size > start_bytes_size {
+        0
+    } else {
+        start_bytes_size - end_size
+    };
+    let percentage_of_reduction: u64 = if start_bytes_size == 0 || end_size > start_bytes_size {
         0
     } else {
         (optimized_bytes * 100) / start_bytes_size

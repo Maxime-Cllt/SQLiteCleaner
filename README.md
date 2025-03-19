@@ -5,7 +5,7 @@
 <div align="center">
     <img src="https://img.shields.io/badge/Rust-dea584?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
     <img src="https://img.shields.io/badge/Sqlite-Cleaner-53a863?style=for-the-badge" alt="Database Cleaner" />
-    <img src="https://img.shields.io/badge/Version-1.0.0-informational?style=for-the-badge" alt="Version" />
+    <img src="https://img.shields.io/badge/Version-1.0.1-informational?style=for-the-badge" alt="Version" />
 </div>
 
 ## 📜 Description
@@ -80,6 +80,14 @@ To run the program:
 
 ```bash
 .\target\release\SQLiteCleaner.exe "path/to/your_database.db"
+```
+
+### Cargo
+
+You can also run the program using Cargo:
+
+```bash
+cargo run --release -- "path/to/your_database.db"
 ```
 
 ## 📝 Notes

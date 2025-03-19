@@ -12,13 +12,8 @@ chrono = "*"
 sqlite = "*"
 num-format = "*"
 once_cell = "*"
-dhat = "*"
 
 [dev-dependencies]
-
-
-[features]
-dhat-heap = []
 
 [profile.dev]
 incremental = true
