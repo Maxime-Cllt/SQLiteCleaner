@@ -32,7 +32,7 @@ pub fn teardown(db_name: &str) {
                 .expect("Failed to change file permissions");
         }
         match remove_file(db_name) {
-            Ok(_) => {
+            Ok(()) => {
                 println!("File {db_name} has been removed.");
             }
             Err(e) => {
@@ -46,7 +46,7 @@ pub fn create_table(conn: &Connection, table_name: &str) {
     match conn.execute(format!(
         "CREATE TABLE {table_name} (id INTEGER PRIMARY KEY, name TEXT);"
     )) {
-        Ok(_) => {}
+        Ok(()) => {}
         Err(e) => {
             eprintln!("Error: {e}");
         }
@@ -55,7 +55,7 @@ pub fn create_table(conn: &Connection, table_name: &str) {
 
 pub fn drop_table(conn: &Connection, table_name: &str) {
     match conn.execute(format!("DROP TABLE IF EXISTS {table_name};")) {
-        Ok(_) => {}
+        Ok(()) => {}
         Err(e) => {
             eprintln!("Error: {e}");
         }

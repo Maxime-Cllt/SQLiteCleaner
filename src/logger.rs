@@ -1,10 +1,9 @@
-use once_cell::sync::Lazy;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::sync::{Mutex, MutexGuard};
 
 /// Static logger instance
-pub static LOGGER: Lazy<Mutex<Logger>> = Lazy::new(|| Mutex::new(Logger::new()));
+pub static LOGGER: std::sync::LazyLock<Mutex<Logger>> = std::sync::LazyLock::new(|| Mutex::new(Logger::new()));
 
 /// Static function to log a message
 pub fn log_message(message: &str) {
@@ -18,6 +17,7 @@ pub fn log_and_print_message(message: &str) {
     logger.log_and_print(message);
 }
 
+#[non_exhaustive]
 pub struct Logger {
     log_file: File,
 }

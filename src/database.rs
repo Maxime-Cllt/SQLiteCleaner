@@ -21,12 +21,7 @@ pub fn open_connection(db_path: &str) -> Connection {
 }
 
 /// Execute an SQL statement
-/// # Arguments
-/// * `conn` - The connection to the database
-/// * `sql` - The SQL statement to execute
-/// * `logger` - The logger to log messages
-/// # Returns
-/// The result
+#[inline]
 pub fn execute_sql(conn: &Connection, sql: &str) -> Result<(), sqlite::Error> {
     match conn.execute(sql) {
         Ok(()) => Ok(()),
@@ -123,7 +118,7 @@ pub fn process_db_cleaning(conn: &Connection) -> Result<(), sqlite::Error> {
         }
     };
 
-    for table_name in result_all_tables.iter() {
+    for table_name in &result_all_tables {
         let sql_commands: [String; 3] = [
             format!("{VACUUM_SQL}'{table_name}';"),
             format!("{REINDEX_SQL}'{table_name}';"),

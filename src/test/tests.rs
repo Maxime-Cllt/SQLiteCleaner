@@ -54,7 +54,7 @@ fn test_execute_sql() {
     crate::database::execute_sql(&conn, sql).unwrap();
     let tables: Vec<String> = get_all_tables(&conn).unwrap();
     assert_eq!(tables.len(), 1);
-    assert!(tables.contains(&"users".to_string()));
+    assert!(tables.contains(&"users".to_owned()));
 
     let sql: &str = "DROP TABLE IF EXISTS users;";
     crate::database::execute_sql(&conn, sql).unwrap();
@@ -74,20 +74,20 @@ fn test_get_from_args() {
 
     setup(DB_PATH);
 
-    let args_1: Vec<String> = vec![EXE_PATH.to_string()];
-    let args_2: Vec<String> = vec![EXE_PATH.to_string(), DB_PATH.to_string()];
-    let args_3: Vec<String> = vec![EXE_PATH.to_string(), DB_PATH.to_string(), EXTRA.to_string()];
+    let args_1: Vec<String> = vec![EXE_PATH.to_owned()];
+    let args_2: Vec<String> = vec![EXE_PATH.to_owned(), DB_PATH.to_owned()];
+    let args_3: Vec<String> = vec![EXE_PATH.to_owned(), DB_PATH.to_owned(), EXTRA.to_owned()];
     let args_4: Vec<String> = vec![
-        EXE_PATH.to_string(),
-        DB_PATH.to_string(),
-        EXTRA.to_string(),
-        EXTRA.to_string(),
+        EXE_PATH.to_owned(),
+        DB_PATH.to_owned(),
+        EXTRA.to_owned(),
+        EXTRA.to_owned(),
     ];
     let args_5: Vec<String> = vec![
-        EXE_PATH.to_string(),
-        DB_PATH.to_string(),
-        EXTRA.to_string(),
-        EXTRA.to_string(),
+        EXE_PATH.to_owned(),
+        DB_PATH.to_owned(),
+        EXTRA.to_owned(),
+        EXTRA.to_owned(),
         EXTRA.to_string(),
     ];
 

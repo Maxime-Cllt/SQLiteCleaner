@@ -4,32 +4,43 @@ version = "1.0.1"
 edition = "2024"
 repository = "https://github.com/Maxime-Cllt/SQLiteCleaner.git"
 description = "A simple tool to clean your SQLite database"
+keywords = ["sqlite", "cleaner", "database", "tool"]
+license = "GPL-3"
+categories = ["command-line-interface", "database"]
 authors = ["Maxime-Cllt"]
 
 
 [dependencies]
-chrono = "*"
-sqlite = "*"
-num-format = "*"
-once_cell = "*"
+chrono = "^0"
+sqlite = "^0"
+num-format = "^0"
+once_cell = "^1"
 
 [dev-dependencies]
 
 [profile.dev]
-incremental = true
-codegen-units = 20
 opt-level = 0
-panic = "unwind"
 debug = true
-lto = false
 overflow-checks = true
+lto = false
+panic = "unwind"
+
+[profile.test]
+incremental = true
+opt-level = 1
+debug = false
+overflow-checks = true
+codegen-units = 50
+lto = false
 
 [profile.release]
 incremental = false
-codegen-units = 1
 opt-level = 3
-panic = "abort"
-strip = true
 debug = false
-lto = true
+lto = "fat"
+codegen-units = 1
 overflow-checks = false
+panic = "abort"
+strip = "symbols"
+rpath = false
+debug-assertions = false
