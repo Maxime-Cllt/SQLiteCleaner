@@ -27,17 +27,18 @@ shape!
 - 🖥️ Easily run on any server or application.
 - 🛠️ User-friendly and easy to use.
 
-## 💻 Platforms & Requirements
+## 💻 Platform Support
 
 <div align="center">
-<img src="https://img.shields.io/badge/OS-MacOS-informational?style=flat&logo=apple&logoColor=white&color=53a863" alt="MacOS" />
-<img src="https://img.shields.io/badge/OS-Linux-informational?style=flat&logo=linux&logoColor=white&color=53a863" alt="Linux" />
-<img src="https://img.shields.io/badge/OS-Windows-informational?style=flat&logo=windows&logoColor=white&color=53a863" alt="Windows" />
-</div>
-
-<div align="center">
-<img src="https://img.shields.io/badge/Rust-1.83+-informational?style=flat&logo=rust&logoColor=white&color=53a863" alt="Rust" />
-<img src="https://img.shields.io/badge/Cargo-informational?style=flat&logo=rust&logoColor=white&color=53a863" alt="Cargo" />
+  <a href="#macos">
+    <img src="https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white&labelColor=gray" alt="macOS" />
+  </a>
+  <a href="#linux">
+    <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black&labelColor=gray" alt="Linux" />
+  </a>
+  <a href="#windows">  
+    <img src="https://img.shields.io/badge/Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white&labelColor=gray" alt="Windows" />
+  </a>
 </div>
 
 ## 🖼️ Example of Execution
@@ -88,6 +89,16 @@ You can also run the program using Cargo:
 
 ```bash
 cargo run --release -- "path/to/your_database.db"
+```
+
+## 🧪 Code Quality
+
+### Unit Tests available
+
+To run unit tests, use the following command:
+
+```bash
+cargo test
 ```
 
 ## 📝 Notes

@@ -1,6 +1,7 @@
 use std::fs::Metadata;
 
 /// Configuration object to hold the configuration of the program (e.g. database path)
+#[must_use]
 pub struct Configuration {
     db_path: String, // Path to the sqlite database file
 }

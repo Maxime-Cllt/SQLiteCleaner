@@ -5,7 +5,7 @@ edition = "2024"
 repository = "https://github.com/Maxime-Cllt/SQLiteCleaner.git"
 description = "A simple tool to clean your SQLite database"
 keywords = ["sqlite", "cleaner", "database", "tool"]
-license = "GPL-3"
+license = "GPL-3.0"
 categories = ["command-line-interface", "database"]
 authors = ["Maxime-Cllt"]
 

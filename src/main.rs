@@ -31,10 +31,8 @@ fn main() {
         start_bytes_size.to_formatted_string(&Locale::en)
     );
 
-    if let Err(e) = process_db_cleaning(&conn) {
-        log_and_print_message(&format!("Error processing the cleaning: {e:?}"));
-        return;
+    match process_db_cleaning(&conn) {
+        Ok(()) => print_report(start_time, start_bytes_size, &config),
+        Err(e) => log_and_print_message(&format!("Error processing the cleaning: {e:?}"))
     }
-
-    print_report(start_time, start_bytes_size, &config);
 }

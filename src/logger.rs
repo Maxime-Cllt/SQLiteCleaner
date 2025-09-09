@@ -2,22 +2,8 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::sync::{Mutex, MutexGuard};
 
-/// Static logger instance
-pub static LOGGER: std::sync::LazyLock<Mutex<Logger>> = std::sync::LazyLock::new(|| Mutex::new(Logger::new()));
-
-/// Static function to log a message
-pub fn log_message(message: &str) {
-    let logger: MutexGuard<Logger> = LOGGER.lock().unwrap();
-    logger.log(message);
-}
-
-/// Static function to log a message and print it to the console
-pub fn log_and_print_message(message: &str) {
-    let logger: MutexGuard<Logger> = LOGGER.lock().unwrap();
-    logger.log_and_print(message);
-}
-
 #[non_exhaustive]
+#[must_use]
 pub struct Logger {
     log_file: File,
 }
@@ -45,4 +31,19 @@ impl Logger {
         println!("{message}");
         self.log(message);
     }
+}
+
+/// Static logger instance
+pub static LOGGER: std::sync::LazyLock<Mutex<Logger>> = std::sync::LazyLock::new(|| Mutex::new(Logger::new()));
+
+/// Static function to log a message
+pub fn log_message(message: &str) {
+    let logger: MutexGuard<Logger> = LOGGER.lock().unwrap();
+    logger.log(message);
+}
+
+/// Static function to log a message and print it to the console
+pub fn log_and_print_message(message: &str) {
+    let logger: MutexGuard<Logger> = LOGGER.lock().unwrap();
+    logger.log_and_print(message);
 }

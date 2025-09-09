@@ -106,9 +106,9 @@ pub fn print_report(start_time: Instant, start_bytes_size: u64, config: &Configu
 /// # Returns
 /// The result
 pub fn process_db_cleaning(conn: &Connection) -> Result<(), sqlite::Error> {
-    const REINDEX_SQL: &str = "REINDEX ";
-    const ANALYZE_SQL: &str = "ANALYZE ";
-    const VACUUM_SQL: &str = "VACUUM ";
+    const REINDEX_SQL: &str = "REINDEX "; // REINDEX to optimize the indexes
+    const ANALYZE_SQL: &str = "ANALYZE "; // ANALYZE to update the statistics 
+    const VACUUM_SQL: &str = "VACUUM "; // VACUUM to clean the database
 
     let result_all_tables: Vec<String> = match get_all_tables(conn) {
         Ok(tables) => tables,
@@ -118,6 +118,7 @@ pub fn process_db_cleaning(conn: &Connection) -> Result<(), sqlite::Error> {
         }
     };
 
+    // Process each table with VACUUM, REINDEX, and ANALYZE
     for table_name in &result_all_tables {
         let sql_commands: [String; 3] = [
             format!("{VACUUM_SQL}'{table_name}';"),
@@ -125,6 +126,7 @@ pub fn process_db_cleaning(conn: &Connection) -> Result<(), sqlite::Error> {
             format!("{ANALYZE_SQL}'{table_name}';"),
         ];
 
+        // Execute each SQL command
         for sql in &sql_commands {
             if let Err(e) = execute_sql(conn, sql) {
                 log_and_print_message(&format!("Error executing SQL '{sql}': {e:?}"));
